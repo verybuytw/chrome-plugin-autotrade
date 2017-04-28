@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+	<div id="app" class="container">
+  	<h4 style="border-bottom: 1px dotted;">VeryBuy自動拍 購物訂單對照表</h4>
+  	<!-- <p>說明</p> -->
+    <div id="trigger-detail" class="checkbox">
+      <label><input type="checkbox" value="">顯示來源資訊</label>
+    </div>
+    <p class="ori-result hide"></p>
+    <table id="trade-table" class="table table-bordered table-striped hide">
+      <caption>VeryBuy自動拍需求商品列表</caption>
+      <thead>
+        <td>#</td>
+        <td>id</td>
+        <td>商品名稱</td>
+        <td>colorSku</td>
+        <td>color名稱</td>
+        <td>sizeSku</td>
+        <td>size名稱</td>
+        <td>數量</td>
+        <td>key</td>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+    <p class="parse-result hide"></p>
+    <table id="taobao-cart-table" class="table table-bordered table-striped hide">
+      <caption>爬下來的淘寶購物車商品列表</caption>
+      <thead>
+        <td>#</td>
+        <td>id</td>
+        <td>商品名稱</td>
+        <td>colorSku</td>
+        <td>color名稱</td>
+        <td>sizeSku</td>
+        <td>size名稱</td>
+        <td>數量</td>
+        <td>key</td>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+    <p class="compare-result"></p>
+    <table id="compare-table" class="table table-bordered table-striped">
+      <caption>淘寶購物車商品差異比對結果表</caption>
+      <thead>
+        <td>#</td>
+        <td>id</td>
+        <td>商品名稱</td>
+        <!-- <td>colorSku</td> -->
+        <td>color名稱</td>
+        <!-- <td>sizeSku</td> -->
+        <td>size名稱</td>
+        <td>數量</td>
+        <td>key</td>
+        <td>配對碼</td>
+        <td>備註</td>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+  </div>
+    <script src="js/result.js"></script>
+    <script src="/js/external/jquery-3.2.1.min.js"></script>
+    <script src="/js/external/bootstrap@3.3.7.min.js"></script>
+</body>
+
+</html>

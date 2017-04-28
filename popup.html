@@ -1,0 +1,32 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+<head>
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+     -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+	<div class="container">
+  	<b style="border-bottom: 1px dotted;">VeryBuy自動拍</b>
+  	<p>說明</p>
+    <div class="debugger" style="color: red;padding: 5px 8px 15px 8px;"></div>
+    <button id="auto-trade" type="button" class="btn btn-info">執行批次自動拍</button>
+  </div>
+    <script type="text/javascript" src="js/popup.js"></script>
+    <script src="/js/external/jquery-3.2.1.min.js"></script>
+    <script src="/js/external/bootstrap@3.3.7.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,33 @@
+{
+    "manifest_version": 2,
+
+    "name": "VeryBuy 批次自動拍",
+    "description": "這是一個針對 { VeryBuy後台 -> 商品管理 -> 批次自動拍 } 的替代擴充工具",
+    "version": "1.0",
+    "browser_action": {
+        "default_title": "VeryBuy自動拍",
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "scripts": ["js/background.js"]
+    },
+    "icons": {
+        "16": "img/16x16-logo.png",
+        "48": "img/48x48-logo.png",
+        "128": "img/128x128-logo.png"
+    },
+    "permissions": [
+        "tabs"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "js/external/jquery-3.2.1.min.js",
+                "js/content_script.js"
+            ]
+        }
+    ]
+}
