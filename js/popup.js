@@ -18,12 +18,11 @@ function checkAutoTrade() {
 var bp = chrome.extension.getBackgroundPage();
 // port.name = tradeConfigFromPopup 才會用到以下測試用的 data
 var myTaobaoItems = [
-    {id: '527361405258', colorSku: '1627207:149938866', sizeSku: '20509:28315', amount: 2},
-    {id: '545998369080', colorSku: '1627207:7201401', sizeSku: '20509:1446377418', amount: 1}
+    {id: '527361405258', colorSku: '1627207:149938866', sizeSku: '20509:28315', amount: 3},
+    {id: '545998369080', colorSku: '1627207:7201401', sizeSku: '20509:1446377418', amount: 5}
 ];
 
 document.addEventListener('DOMContentLoaded', function() {
-    // bp.autoTrade.chromeTabsCreate('result.html');
     // 確認是否正在執行自動拍, 正在執行的話就disabled按鈕
     checkAutoTrade();
 });
