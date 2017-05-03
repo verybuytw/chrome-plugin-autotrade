@@ -40,6 +40,7 @@ $(function() {
                     console.log(taobaoCartResult, 'taobaoCartResult');
                     chrome.runtime.sendMessage({type: 'showResult', taobaoCartResult: taobaoCartResult});
                 }, Date.now());
+                location.replace('https://world.taobao.com/cart/cart.htm');
                 break;
             default:
                 console.log("It doesn't match type:" + msg.type);
