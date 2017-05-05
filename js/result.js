@@ -118,13 +118,13 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
 var bp = chrome.extension.getBackgroundPage();
 
 document.addEventListener('DOMContentLoaded', function() {
-    var taobaoItemList = sortById(bp.autoTrade.getTaobaoItemList());
+    var taobaoItemList = sortById(bp.autoTrade.getTaobaoItemList().slice());
 
     $('#app > .ori-result').text(JSON.stringify(taobaoItemList));
 
     renderTable('trade-table', taobaoItemList);
 
-    taobaoCartResult = bp.autoTrade.getTaobaoCartResult();
+    taobaoCartResult = bp.autoTrade.getTaobaoCartResult().slice();
     if (taobaoCartResult.length == 0) {
         alert('尚未存取從淘寶購物車爬到的資訊！');
     } else {
@@ -134,7 +134,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     renderTable('taobao-cart-table', taobaoCartResult);
 
-    var comparisonResult = getComparisonResult(taobaoItemList, taobaoCartResult);
+    var cloneTaobaoItemList = taobaoItemList.slice();
+    var cloneTaobaoCartResult = taobaoCartResult.slice();
+
+    // var comparisonResult = getComparisonResult(cloneTaobaoItemList, cloneTaobaoCartResult);
+    var comparisonResult = [];
 
     $('#app > .compare-result').text(JSON.stringify(comparisonResult));
 

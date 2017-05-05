@@ -26,7 +26,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 });
 
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-	console.log(tabId, removeInfo);
+	// console.log(tabId, removeInfo);
 });
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
@@ -200,7 +200,6 @@ var setTradeConfigFromPopup = function(port) {
 }
 
 var triggerAutoTrade = function() {
-
     var taobaoItemId = autoTrade.getTaobaoItem().content.id;
     var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId;
     autoTrade.chromeTabsCreate(url);
