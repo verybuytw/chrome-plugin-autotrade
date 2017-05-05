@@ -70,7 +70,7 @@ var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, colorCartFullName, 
                 break colorLabel;
             }
             var colorSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + this.colorSku + '"]');
-            if (detection.isElementNotExisted(colorSkuElement, 'id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在')) {
+            if (detection.ifElementNotExisted(colorSkuElement, 'id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在')) {
                 window.isTradeDone = true;
                 return;
             }
@@ -91,7 +91,7 @@ var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, colorCartFullName, 
             }
             var sizeSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + this.sizeSku + '"]');
 
-            if (detection.isElementNotExisted(sizeSkuElement, 'id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在')) {
+            if (detection.ifElementNotExisted(sizeSkuElement, 'id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在')) {
                 window.isTradeDone = true;
                 return;
             }
@@ -151,16 +151,10 @@ var additionalInfo = (function() {
     };
     var getNameByColorSku = function(colorSku) {
         var colorSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + colorSku + '"] > a');
-        // if (detection.isElementNotExisted(colorSkuElement[0].getAttribute('title'), 'colorSku name 不存在')) {
-        //     return 'not found';
-        // }
         return colorSkuElement[0].getAttribute('title');
     };
     var getNameBySizeSku = function(sizeSku) {
         var sizeSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + sizeSku + '"] > a');
-        // if (detection.isElementNotExisted(sizeSkuElement[0].getAttribute('title'), 'sizeSku name 不存在')) {
-        //     return 'not found';
-        // }
         return sizeSkuElement[0].getAttribute('title');
     };
     var setKeyValue = function() {
@@ -205,7 +199,6 @@ var additionalInfo = (function() {
 })();
 
 var parseTaobaoCartContent = (function() {
-    // 這沒用了...TMD浪費我時間
     var taobaoCartResult = [];
     var getParseBasicInfo = function() {
         // 回傳一個 [[name], [id in href]]
@@ -222,32 +215,50 @@ var parseTaobaoCartContent = (function() {
         return result;
     };
     var getParseMixedSku = function() {
-        // 回傳一個 [[colorName], [sizeName]]
-        var result = [[], []];
+        // 回傳 [[colorCartFullName], [sizeCartFullName]]
+        // 或回傳 [[sizeCartFullName], [colorCartFullName]]
+        var result = [];
         var mixedSku = document.querySelectorAll('.td-info .sku-line');
-        mixedSku.forEach(function(item, i) {
-            result[i & 1].push(item.textContent);
+        if (detection.ifElementNotExisted(mixedSku, '$(\'.td-info .sku-line\') not found')) {
+            return result;
+        }
+        var partSkuEven = [];
+        var partSkuOdd = [];
+        mixedSku.forEach(function(item, index) {
+            if (index % 2 == 0) {
+                partSkuEven.push(item.textContent);
+            } else {
+                partSkuOdd.push(item.textContent);
+            }
         });
+        for (var index in partSkuEven) {
+            result.push([]);
+            result[index].push(partSkuEven[index]);
+        }
+        for (var index in partSkuOdd) {
+            result[index].push(partSkuOdd[index]);
+        }
         return result;
     };
     var getAmountOfItems = function() {
         var result = [];
         var amountofItems = document.querySelectorAll('.item-amount > input');
+        if (detection.ifElementNotExisted(amountofItems, '$(\'.item-amount > input\') not found')) {
+            return result;
+        }
         amountofItems.forEach(function(item) {
             result.push(item.getAttribute('value'));
         });
         return result;
     };
     var assignKeyValues = function() {
-
         for (var item in taobaoCartResult) {
-
             var i = Object.keys(taobaoCartResult).indexOf(item);
             item = taobaoCartResult[i];
             var o = {
                 id: item.id,
-                colorName: item.colorName,
-                sizeName: item.sizeName,
+                mixedCartFullName0: item.mixedCartFullName0,
+                mixedCartFullName1: item.mixedCartFullName1,
                 amount: item.amount
             }
             taobaoCartResult[i].cKey = JSON.stringify(o);
@@ -264,13 +275,11 @@ var parseTaobaoCartContent = (function() {
                 taobaoCartResult[i].id = item;
             });
 
-            var mixedSku = getParseMixedSku();
+            var mixedCartFullNames = getParseMixedSku();
 
-            mixedSku[0].forEach(function(item, i) {
-                taobaoCartResult[i].colorName = item.split('颜色分类：')[1];
-            });
-            mixedSku[1].forEach(function(item, i) {
-                taobaoCartResult[i].sizeName = item.split('尺码：')[1];
+            mixedCartFullNames.forEach(function(item, i) {
+                taobaoCartResult[i].mixedCartFullName0 = item[0];
+                taobaoCartResult[i].mixedCartFullName1 = item[1];
             });
 
             getAmountOfItems().forEach(function(amount, i) {
@@ -298,7 +307,7 @@ var detection = (function() {
         }
         return false;
     };
-    Detection.prototype.isElementNotExisted = function(element, alertMessage, closeAlert) {
+    Detection.prototype.ifElementNotExisted = function(element, alertMessage = '偵測到不存在元素', closeAlert) {
         if (element === null) {
             if (!closeAlert) {
                 alert('Error: length of element@elementExistedDetection is null');
@@ -320,8 +329,8 @@ var detection = (function() {
         timeout: function(endDateTime, startDateTime, timeout, alertMessage, closeAlert = false) {
             return _detection.timeout(endDateTime, startDateTime, timeout, alertMessage, closeAlert);
         },
-        isElementNotExisted: function(element, alertMessage, closeAlert = false) {
-            return _detection.isElementNotExisted(element, alertMessage, closeAlert);
+        ifElementNotExisted: function(element, alertMessage, closeAlert = false) {
+            return _detection.ifElementNotExisted(element, alertMessage, closeAlert);
         }
     }
 })();
