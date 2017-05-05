@@ -10,7 +10,7 @@ $(function() {
             case 'autoTrade':
                 var currentSeq = msg.taobaoItem.seq;
                 var taobaoItem = msg.taobaoItem.content;
-                runAutoTrade(taobaoItem.id, taobaoItem.colorSku, taobaoItem.sizeSku, taobaoItem.amount);
+                runAutoTrade(taobaoItem.id, taobaoItem.colorSku, taobaoItem.sizeSku, taobaoItem.colorCartFullName, taobaoItem.sizeCartFullName, taobaoItem.amount);
                 // sendResponse 回傳訊息僅在同步內有效
                 sendResponse({currentSeq: currentSeq});
 
@@ -48,7 +48,7 @@ $(function() {
     });
 });
 
-var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, amount) {
+var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
 
     if (!taobaoItemId || !amount) {
         alert('taobaoItemId || amount 項目不得為空值！');
@@ -58,6 +58,8 @@ var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, amount) {
         this.taobaoItemId = taobaoItemId;
         this.colorSku = colorSku;
         this.sizeSku = sizeSku;
+        this.colorCartFullName = colorCartFullName;
+        this.sizeCartFullName = sizeCartFullName;
         this.amount = amount;
     }
     AutoTrade.prototype.run = function() {
@@ -106,6 +108,9 @@ var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, amount) {
 
         this.setAmountByTriggerIncrease(this.amount);
 
+        additionalInfo.setTaobaoItemId(this.taobaoItemId);
+        additionalInfo.setColorCartFullName(this.colorCartFullName);
+        additionalInfo.setSizeCartFullName(this.sizeCartFullName);
         additionalInfo.setAmountForKeyValue(this.amount);
 
         var amount_delay = this.amount * 350;
@@ -138,6 +143,8 @@ var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, amount) {
 var additionalInfo = (function() {
     var comparison = {};
     var _taobaoItemId = '0';
+    var _colorCartFullName = '';
+    var _sizeCartFullName = '';
     var _amount = 0;
     var getTaobaoItemName = function() {
         return document.querySelectorAll('#J_Title .tb-main-title .t-title')[0].textContent;
@@ -161,8 +168,8 @@ var additionalInfo = (function() {
         // 改用vb後端會另外給一個購物車sku對應的翻譯名稱
         var o = {
             id: _taobaoItemId,
-            colorName: comparison.colorName,
-            sizeName: comparison.sizeName,
+            colorCartFullName: _colorCartFullName,
+            sizeCartFullName: _sizeCartFullName,
             amount: _amount
         }
         comparison.cKey = JSON.stringify(o);
@@ -172,8 +179,17 @@ var additionalInfo = (function() {
             setKeyValue();
             return comparison;
         },
-        setNameByTaobaoItemId: function(taobaoItemId) {
+        setTaobaoItemId: function(taobaoItemId) {
             _taobaoItemId = taobaoItemId;
+        },
+        setColorCartFullName: function(colorCartFullName) {
+            _colorCartFullName = colorCartFullName;
+        },
+        setSizeCartFullName: function(sizeCartFullName) {
+            _sizeCartFullName = sizeCartFullName;
+        },
+        setNameByTaobaoItemId: function(taobaoItemId) {
+            // 取的名稱暫時不需要 taobaoItemId
             comparison.itemName = getTaobaoItemName();
         },
         setNameByColorSku: function(colorSku) {
