@@ -66,10 +66,10 @@ var renderTable = function(tableId, tableContent) {
 var sortById = function(items) {
     items.sort(function (a, b) {
         // 物件可以利用其中一個屬性的值來排序
-        if (a.id > b.id) {
+        if (parseInt(a.id) > parseInt(b.id)) {
             return 1;
         }
-        if (a.id < b.id) {
+        if (parseInt(a.id) < parseInt(b.id)) {
             return -1;
         }
         // a must be equal to b
@@ -84,7 +84,7 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
     // initialization
     taobaoCartItems.forEach(function(item, i) {
         taobaoCartItems[i].match = 0;
-        taobaoCartItems[i].extraInfo = '額外的';
+        taobaoCartItems[i].extraInfo = '購物車';
     });
 
     var attentionItems = [];
@@ -93,7 +93,7 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
         var isMatched = false;
         var vbTaobaoItemContent = vbTaobaoItem.content;
         taobaoCartItems.forEach(function(taobaoCartItem, j) {
-            if (vbTaobaoItemContent.cKey == taobaoCartItem.cKey) {
+            if (vbTaobaoItemContent.cKey == taobaoCartItem.cKey[0] || vbTaobaoItemContent.cKey == taobaoCartItem.cKey[1]) {
                 taobaoCartItems[j].match = 1;
                 taobaoCartItems[j].extraInfo = 'V';
                 isMatched = true;
@@ -118,20 +118,19 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
 var bp = chrome.extension.getBackgroundPage();
 
 document.addEventListener('DOMContentLoaded', function() {
-    var taobaoItemList = sortById(bp.autoTrade.getTaobaoItemList().slice());
+    var taobaoItemList = bp.autoTrade.getTaobaoItemList().slice();
 
     $('#app > .ori-result').text(JSON.stringify(taobaoItemList));
 
     renderTable('trade-table', taobaoItemList);
 
-    taobaoCartResult = bp.autoTrade.getTaobaoCartResult().slice();
+    var taobaoCartResult = bp.autoTrade.getTaobaoCartResult().slice();
+    console.log(taobaoCartResult);
 
     if (taobaoCartResult.length == 0) {
         alert('尚未存取從淘寶購物車爬到的資訊！');
     } else {
         taobaoCartResult = sortById(taobaoCartResult.slice());
-        taobaoCartResult.colorName = taobaoCartResult.mixedCartFullName0;
-        taobaoCartResult.sizeName = taobaoCartResult.mixedCartFullName1;
         $('#app > .parse-result').text(JSON.stringify(taobaoCartResult));
     }
 
@@ -140,16 +139,14 @@ document.addEventListener('DOMContentLoaded', function() {
     var cloneTaobaoItemList = taobaoItemList.slice();
     var cloneTaobaoCartResult = taobaoCartResult.slice();
 
-    // var comparisonResult = getComparisonResult(cloneTaobaoItemList, cloneTaobaoCartResult);
-    var comparisonResult = [];
+    var comparisonResult = getComparisonResult(cloneTaobaoItemList, cloneTaobaoCartResult);
 
-    $('#app > .compare-result').text(JSON.stringify(comparisonResult));
+    $('#app > .compare-result').text(JSON.stringify(sortById(comparisonResult)));
 
     renderTable('compare-table', comparisonResult);
 });
 
 document.getElementById('trigger-detail').addEventListener('change', function() {
-    // console.log(this.querySelectorAll('input')[0].checked, 'trigger-detail');
     if (this.querySelectorAll('input')[0].checked) {
         document.getElementById('trade-table').classList.remove("hide");
         document.getElementById('taobao-cart-table').classList.remove("hide");

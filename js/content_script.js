@@ -66,11 +66,11 @@ var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, colorCartFullName, 
         colorLabel: {
             if (this.colorSku === null) {
                 // 表示此商品本來就沒colorSku項目
-                alert('colorSku null')
+                // alert('colorSku null');
                 break colorLabel;
             }
             var colorSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + this.colorSku + '"]');
-            if (detection.ifElementNotExisted(colorSkuElement, 'id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在')) {
+            if (detection.ifElementNotExisted(colorSkuElement, 'id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在', true)) {
                 window.isTradeDone = true;
                 return;
             }
@@ -86,12 +86,12 @@ var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, colorCartFullName, 
         sizeLabel: {
             if (this.sizeSku === null) {
                 // 表示此商品本來就沒sizeSku項目
-                alert('sizeSku null')
+                // alert('sizeSku null');
                 break sizeLabel;
             }
             var sizeSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + this.sizeSku + '"]');
 
-            if (detection.ifElementNotExisted(sizeSkuElement, 'id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在')) {
+            if (detection.ifElementNotExisted(sizeSkuElement, 'id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在', true)) {
                 window.isTradeDone = true;
                 return;
             }
@@ -214,32 +214,6 @@ var parseTaobaoCartContent = (function() {
         });
         return result;
     };
-    var getParseMixedSku = function() {
-        // 回傳 [[colorCartFullName], [sizeCartFullName]]
-        // 或回傳 [[sizeCartFullName], [colorCartFullName]]
-        var result = [];
-        var mixedSku = document.querySelectorAll('.td-info .sku-line');
-        if (detection.ifElementNotExisted(mixedSku, '$(\'.td-info .sku-line\') not found')) {
-            return result;
-        }
-        var partSkuEven = [];
-        var partSkuOdd = [];
-        mixedSku.forEach(function(item, index) {
-            if (index % 2 == 0) {
-                partSkuEven.push(item.textContent);
-            } else {
-                partSkuOdd.push(item.textContent);
-            }
-        });
-        for (var index in partSkuEven) {
-            result.push([]);
-            result[index].push(partSkuEven[index]);
-        }
-        for (var index in partSkuOdd) {
-            result[index].push(partSkuOdd[index]);
-        }
-        return result;
-    };
     var getAmountOfItems = function() {
         var result = [];
         var amountofItems = document.querySelectorAll('.item-amount > input');
@@ -255,19 +229,41 @@ var parseTaobaoCartContent = (function() {
         for (var item in taobaoCartResult) {
             var i = Object.keys(taobaoCartResult).indexOf(item);
             item = taobaoCartResult[i];
-            var o = {
-                id: item.id,
-                colorCartFullName: item.mixedCartFullName0,
-                sizeCartFullName: item.mixedCartFullName1,
-                amount: item.amount
+
+            var mixedSkuNames = document.querySelectorAll('.find-similar.close[data-itemid="' + item.id + '"]')[0].parentElement.parentElement.parentElement.querySelectorAll('.td-info .sku-line');
+
+            if (typeof mixedSkuNames[1] == 'undefined') {
+                var o = {
+                    id: item.id,
+                    colorCartFullName: mixedSkuNames[0].textContent.replace('：', ':'),
+                    sizeCartFullName: '單一',
+                    amount: item.amount
+                }
+                taobaoCartResult[i].cKey = [];
+                taobaoCartResult[i].cKey.push(JSON.stringify(o));
+
+                o = {
+                    id: item.id,
+                    colorCartFullName: '單一',
+                    sizeCartFullName: mixedSkuNames[0].textContent.replace('：', ':'),
+                    amount: item.amount
+                }
+                taobaoCartResult[i].cKey.push(JSON.stringify(o));
+            } else {
+                var o = {
+                    id: item.id,
+                    colorCartFullName: mixedSkuNames[0].textContent.replace('：', ':'),
+                    sizeCartFullName: mixedSkuNames[1].textContent.replace('：', ':'),
+                    amount: item.amount
+                }
+                taobaoCartResult[i].cKey = [];
+                taobaoCartResult[i].cKey.push(JSON.stringify(o));
+
+                o.colorCartFullName = mixedSkuNames[1].textContent.replace('：', ':');
+                o.sizeCartFullName = mixedSkuNames[0].textContent.replace('：', ':');
+
+                taobaoCartResult[i].cKey.push(JSON.stringify(o));
             }
-            taobaoCartResult[i].cKey = [];
-            taobaoCartResult[i].cKey.push(JSON.stringify(o));
-
-            o.colorCartFullName = item.mixedCartFullName1;
-            o.sizeCartFullName = item.mixedCartFullName0;
-
-            taobaoCartResult[i].cKey.push(JSON.stringify(o));
         }
     };
     return {
@@ -279,13 +275,6 @@ var parseTaobaoCartContent = (function() {
             });
             basicInfo[1].forEach(function(item, i) {
                 taobaoCartResult[i].id = item;
-            });
-
-            var mixedCartFullNames = getParseMixedSku();
-
-            mixedCartFullNames.forEach(function(item, i) {
-                taobaoCartResult[i].mixedCartFullName0 = item[0].replace('：', ':');
-                taobaoCartResult[i].mixedCartFullName1 = item[1].replace('：', ':');
             });
 
             getAmountOfItems().forEach(function(amount, i) {
