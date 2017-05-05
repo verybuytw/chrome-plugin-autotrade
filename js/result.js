@@ -125,10 +125,13 @@ document.addEventListener('DOMContentLoaded', function() {
     renderTable('trade-table', taobaoItemList);
 
     taobaoCartResult = bp.autoTrade.getTaobaoCartResult().slice();
+
     if (taobaoCartResult.length == 0) {
         alert('尚未存取從淘寶購物車爬到的資訊！');
     } else {
-        taobaoCartResult = sortById(taobaoCartResult);
+        taobaoCartResult = sortById(taobaoCartResult.slice());
+        taobaoCartResult.colorName = taobaoCartResult.mixedCartFullName0;
+        taobaoCartResult.sizeName = taobaoCartResult.mixedCartFullName1;
         $('#app > .parse-result').text(JSON.stringify(taobaoCartResult));
     }
 

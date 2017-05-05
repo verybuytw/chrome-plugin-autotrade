@@ -164,7 +164,7 @@ var additionalInfo = (function() {
             id: _taobaoItemId,
             colorCartFullName: _colorCartFullName,
             sizeCartFullName: _sizeCartFullName,
-            amount: _amount
+            amount: parseInt(_amount)
         }
         comparison.cKey = JSON.stringify(o);
     }
@@ -257,11 +257,17 @@ var parseTaobaoCartContent = (function() {
             item = taobaoCartResult[i];
             var o = {
                 id: item.id,
-                mixedCartFullName0: item.mixedCartFullName0,
-                mixedCartFullName1: item.mixedCartFullName1,
+                colorCartFullName: item.mixedCartFullName0,
+                sizeCartFullName: item.mixedCartFullName1,
                 amount: item.amount
             }
-            taobaoCartResult[i].cKey = JSON.stringify(o);
+            taobaoCartResult[i].cKey = [];
+            taobaoCartResult[i].cKey.push(JSON.stringify(o));
+
+            o.colorCartFullName = item.mixedCartFullName1;
+            o.sizeCartFullName = item.mixedCartFullName0;
+
+            taobaoCartResult[i].cKey.push(JSON.stringify(o));
         }
     };
     return {
@@ -278,8 +284,8 @@ var parseTaobaoCartContent = (function() {
             var mixedCartFullNames = getParseMixedSku();
 
             mixedCartFullNames.forEach(function(item, i) {
-                taobaoCartResult[i].mixedCartFullName0 = item[0];
-                taobaoCartResult[i].mixedCartFullName1 = item[1];
+                taobaoCartResult[i].mixedCartFullName0 = item[0].replace('：', ':');
+                taobaoCartResult[i].mixedCartFullName1 = item[1].replace('：', ':');
             });
 
             getAmountOfItems().forEach(function(amount, i) {
