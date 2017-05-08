@@ -34,7 +34,6 @@ document.getElementById('auto-trade').addEventListener('click', function(e) {
     });
     port.postMessage({taobaoItems: myTaobaoItems});
     port.onMessage.addListener(function(msg) {
-        console.log(msg, 'message recieved');
         if (!msg.success) {
             renderBySelectorName('.debugger', msg.message);
         }

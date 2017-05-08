@@ -15,7 +15,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (window.isAutoTradeStarted && tabStatus == 'complete') {
     	console.log('tabId: #' + tabId + ' onUpdated...');
         function returnMsgCallback(res) {
-            console.log(res, 'Got a callback msg from cs...');
+            // console.log(res, 'Got a callback msg from cs...');
         }
 
         chrome.tabs.sendMessage(tabId, {
@@ -33,9 +33,6 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 
 	switch(msg.type) {
 		case 'autoTrade':
-			console.log(msg, '(Received a msg from cs...)');
-			console.log(sender.tab.id, '(Received a msg from cs...)');
-
 			var seq = autoTrade.getCurrentSeq();
 
 			autoTrade.setAdditionalInfoBySeq(seq, msg.additionalInfo);
@@ -161,8 +158,6 @@ var autoTrade = (function() {
 })();
 
 chrome.runtime.onConnect.addListener(function(port) {
-	console.log(port);
-
 	switch(port.name) {
 	    case 'tradeConfigFromPopup':
 	    	window.isAutoTradeStarted = true;
@@ -188,8 +183,6 @@ var checkAutoTradeState = function(port) {
 
 var setTradeConfigFromPopup = function(port) {
 	port.onMessage.addListener(function(msg) {
-		console.log(msg, 'trade config message recieved');
-
 		if (msg.taobaoItems.length == 0) {
 	        port.postMessage({success: false, message: 'Error: taobaoItems 不得為空值！'});
 	        return;
