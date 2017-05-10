@@ -194,6 +194,7 @@ var setTradeConfigFromPopup = function(port) {
 
 var triggerAutoTrade = function() {
     var taobaoItemId = autoTrade.getTaobaoItem().content.id;
-    var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId;
+    // var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId;
+    var url = 'https://world.taobao.com/item/' + taobaoItemId + '.htm';
     autoTrade.chromeTabsCreate(url);
 }

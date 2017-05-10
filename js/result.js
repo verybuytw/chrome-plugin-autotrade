@@ -94,9 +94,9 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
                 taobaoCartItem.match = 1;
                 taobaoCartItem.extraInfo = 'V';
                 isMatched = true;
+                taobaoCartItem.colorCartFullName = vbTaobaoItem.colorCartFullName;
+                taobaoCartItem.sizeCartFullName = vbTaobaoItem.sizeCartFullName;
             }
-            taobaoCartItem.colorCartFullName = vbTaobaoItem.colorCartFullName;
-            taobaoCartItem.sizeCartFullName = vbTaobaoItem.sizeCartFullName;
         });
         if (!isMatched) {
             vbTaobaoItem.match = -1;
