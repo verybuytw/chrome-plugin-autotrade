@@ -13,14 +13,29 @@ var renderTable = function(tableId, tableContent) {
             tbody += '<td>' + ((typeof itemContent.colorSku !== 'undefined') ? itemContent.colorSku : '-') + '</td>';
         }
 
-        tbody += '<td>' + ((typeof itemContent.colorCartFullName !== 'undefined') ? itemContent.colorCartFullName : '-') + '</td>';
+        var td = '<td>';
+
+        if (typeof itemContent.match !== 'undefined' && itemContent.cKey !== '{"id":"0","colorCartFullName":"","sizeCartFullName":"","amount":0}') {
+            switch(itemContent.match) {
+                case 1:
+                    td = '<td>';
+                    break;
+                case -1:
+                    td = '<td class="danger">';
+                    break;
+                default:
+                    td = '<td class="success">';
+            }
+        }
+        tbody += td + ((typeof itemContent.colorCartFullName !== 'undefined') ? itemContent.colorCartFullName : '-') + '</td>';
 
         // 比較結果不顯示
         if (typeof itemContent.match == 'undefined') {
             tbody += '<td>' + ((typeof itemContent.sizeSku !== 'undefined') ? itemContent.sizeSku : '-') + '</td>';
         }
 
-        tbody += '<td>' + ((typeof itemContent.sizeCartFullName !== 'undefined') ? itemContent.sizeCartFullName : '-') + '</td>';
+        tbody += td + ((typeof itemContent.sizeCartFullName !== 'undefined') ? itemContent.sizeCartFullName : '-') + '</td>';
+
         tbody += '<td>' + ((typeof itemContent.amount !== 'undefined') ? itemContent.amount : '-') + '</td>';
 
         if (typeof itemContent.match !== 'undefined') {
@@ -96,6 +111,15 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
                 isMatched = true;
                 taobaoCartItem.colorCartFullName = vbTaobaoItem.colorCartFullName;
                 taobaoCartItem.sizeCartFullName = vbTaobaoItem.sizeCartFullName;
+            } else {
+                cartFullNameIssue: {
+                    if (vbTaobaoItem.cKey === '{"id":"0","colorCartFullName":"","sizeCartFullName":"","amount":0}') {
+                        break cartFullNameIssue;
+                    }
+                    var taobaoCartItemByParser = JSON.parse(taobaoCartItem.cKey[0]);
+                    taobaoCartItem.colorCartFullName = taobaoCartItemByParser.colorCartFullName;
+                    taobaoCartItem.sizeCartFullName = taobaoCartItemByParser.sizeCartFullName;
+                }
             }
         });
         if (!isMatched) {
