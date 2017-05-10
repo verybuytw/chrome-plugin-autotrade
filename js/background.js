@@ -6,6 +6,9 @@ window.taobaoCartResult = [];
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     var tabStatus = changeInfo.status;
 
+    if (tab.url.match(/\/product\/batch_auto_trade_chrome/)) {
+		chrome.pageAction.show(tabId);
+    }
     if (tab.url == window.cartUrl) {
     	chrome.tabs.sendMessage(tabId, {
         	type: 'showResult',

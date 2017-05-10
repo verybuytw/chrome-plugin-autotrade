@@ -4,7 +4,7 @@
     "name": "VeryBuy 批次自動拍",
     "description": "這是一個針對 { VeryBuy後台 -> 商品管理 -> 批次自動拍 } 的替代擴充工具",
     "version": "1.0",
-    "browser_action": {
+    "page_action": {
         "default_title": "VeryBuy自動拍",
         "default_popup": "popup.html"
     },
