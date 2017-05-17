@@ -108,9 +108,22 @@ var autoTrade = (function() {
                     active: true
                 }, function(currentTabs) {
                     var currentTabId = currentTabs[0].id
-                    function returnMsgCallback(res) {
-                        window.backfilledKey = res.backfilledKey;
-                        autoTrade.chromeTabsCreate('keyGen.html');
+                    function returnMsgCallback(resFromParser) {
+
+                        chrome.storage.local.get('backfilledKey', function(resFromStorage) {
+                            if (typeof resFromStorage.backfilledKey == 'undefined') {
+                                window.backfilledKey = resFromParser.backfilledKey;
+                            } else {
+                                var _o = JSON.parse(resFromStorage.backfilledKey);
+                                var o = JSON.parse(resFromParser.backfilledKey);
+                                var m_o = Object.assign(_o, o);
+
+                                window.backfilledKey = JSON.stringify(m_o);
+                            }
+
+                            chrome.storage.local.set({'backfilledKey': window.backfilledKey});
+                            autoTrade.chromeTabsCreate('keyGen.html');
+                        });
                     }
                     chrome.tabs.sendMessage(currentTabId, {
                         type: 'keyGenerator'
@@ -205,6 +218,19 @@ chrome.runtime.onConnect.addListener(function(port) {
             break;
         case 'keyGenerator':
             autoTrade.keyGenerator(port);
+            break;
+        case 'resetBackfilledKey':
+
+            chrome.storage.local.remove('backfilledKey');
+
+            chrome.storage.local.get('backfilledKey', function(resFromStorage) {
+                if (typeof resFromStorage.backfilledKey == 'undefined') {
+                    window.backfilledKey = '寶訂單號回填代碼已重設...';
+                } else {
+                    window.backfilledKey = resFromStorage.backfilledKey;
+                }
+                autoTrade.chromeTabsCreate('keyGen.html');
+            });
             break;
         default:
             console.log("It doesn't match port name:" + port.name);
