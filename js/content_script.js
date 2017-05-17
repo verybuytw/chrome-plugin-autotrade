@@ -42,11 +42,54 @@ $(function() {
                 }, Date.now());
                 location.replace('https://world.taobao.com/cart/cart.htm');
                 break;
+            case 'keyGenerator':
+                ;
+                // sendResponse 回傳訊息僅在同步內有效
+                sendResponse({backfilledKey: runKeyGenerator()});
+                break
             default:
                 console.log("It doesn't match type:" + msg.type);
         }
     });
 });
+
+var runKeyGenerator = function() {
+    // alert('即將產生keyGenerator...');
+    var backfilledKey = {};
+    var boughtWrappers = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV');
+
+    for (var i = 0; i < boughtWrappers.length; i++) {
+        // 訂單號
+        var taobaoOrderId = boughtWrappers[i].getAttribute('data-id');
+
+        if (document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] .bought-wrapper-mod__checkbox___11anQ > input')[0].disabled == true) {
+            // 不是能勾選的狀態不用理
+            continue;
+        }
+        var tbody = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] tbody')
+
+        // tbody 1~n , 0 不含 taobaoitemId 資訊
+        for (var n = 1; n < tbody.length; n++) {
+            // a tag 藏有 taobaoitemId
+            var atag = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] tbody')[n].querySelectorAll('tr td')[0].querySelectorAll('a')[0];
+
+            var taobaoItemId = null;
+            var itemLink = atag.getAttribute('href');
+
+            itemLink = typeof itemLink.split('id=')[1] != 'undefined' ? itemLink.split('id=')[1] : null;
+            if (itemLink === null) {
+                alert('解析商品ID發生錯誤\nError: itemLink === null');
+            } else {
+                taobaoItemId = typeof itemLink.split('&')[0] != 'undefined' ? itemLink.split('&')[0] : null;
+            }
+            if (taobaoItemId === null) {
+                alert('解析商品ID發生錯誤\nError: taobaoItemId === null');
+            }
+            backfilledKey[taobaoItemId] = taobaoOrderId;
+        }
+    }
+    return JSON.stringify(backfilledKey);
+};
 
 var runAutoTrade = function(taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
 
@@ -291,7 +334,7 @@ var parseTaobaoCartContent = (function() {
 
 var detection = (function() {
     function Detection() {
-        console.log('new Detection()...');
+        // console.log('new Detection()...');
     };
     Detection.prototype.timeout = function(endDateTime, startDateTime, timeout, alertMessage, closeAlert) {
         if (endDateTime - startDateTime >= timeout) {

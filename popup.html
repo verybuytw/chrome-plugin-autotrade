@@ -20,9 +20,28 @@
 <body>
 	<div class="container">
   	<b style="border-bottom: 1px dotted;">VeryBuy自動拍</b>
-  	<p style="color: blue;">執行前，請先刷新後台網頁</p>
     <div class="debugger" style="color: red;padding: 5px 8px 15px 8px;"></div>
-    <button id="auto-trade" type="button" class="btn btn-info">執行批次自動拍</button>
+
+    <div class="group-trade hide">
+      <p style="color: blue;" is-hint>執行前，請先刷新當前網頁</p>
+      <button id="auto-trade" type="button" class="btn btn-info">執行批次自動拍</button>
+    </div>
+
+    <div class="group-keyGen hide">
+      <p style="color: blue;" is-hint>如果有分頁，請依分頁依序點下【產生淘寶訂單回填代碼】按鈕</p>
+      <table class="table">
+        <tbody>
+          <tr>
+            <th>
+              <button id="key-reset" type="button" class="btn btn-small">重設</button>
+            </th>
+            <th>
+              <button id="key-gen" type="button" class="btn btn-danger btn-small">產生淘寶訂單回填代碼</button>
+            </th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
     <script type="text/javascript" src="js/popup.js"></script>
     <script src="/js/external/jquery-3.2.1.min.js"></script>

@@ -1,12 +1,24 @@
+window.currentURL = '';
 window.isAutoTradeStarted = false;
 window.cartUrl = 'https://world.taobao.com/cart/cart.htm?showResult=1';
 // 存放從淘寶購物車爬到的資訊
 window.taobaoCartResult = [];
 
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+    chrome.tabs.get(activeInfo.tabId, function(tab) {
+        // console.log(tab, 'tabsOnActivated');
+        window.currentURL = tab.url;
+    })
+});
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    window.currentURL = tab.url;
     var tabStatus = changeInfo.status;
 
     if (tab.url.match(/\/product\/batch_auto_trade_chrome/)) {
+        chrome.pageAction.show(tabId);
+    }
+    if (tab.url.match(/\/trade\/itemlist\/list_bought_items.htm/)) {
         chrome.pageAction.show(tabId);
     }
     if (tab.url == window.cartUrl) {
@@ -86,7 +98,23 @@ var autoTrade = (function() {
     return {
         chromeTabsCreate: function(url) {
             chrome.tabs.create({url: url});
-            console.log('#' + taobaoItem.seq + ' tabs created...');
+            // console.log('#' + taobaoItem.seq + ' tabs created...');
+        },
+        keyGenerator: function(port) {
+            port.onMessage.addListener(function(msg) {
+                chrome.tabs.query({
+                    currentWindow: true,
+                    active: true
+                }, function(currentTabs) {
+                    var currentTabId = currentTabs[0].id
+                    function returnMsgCallback(res) {
+                        console.log(res, 'res of keyGenerator');
+                    }
+                    chrome.tabs.sendMessage(currentTabId, {
+                        type: 'keyGenerator'
+                    }, returnMsgCallback);
+                });
+            });
         },
         tradeConfigFromContentScript: function(port) {
             port.onMessage.addListener(function(msg) {
@@ -172,6 +200,9 @@ chrome.runtime.onConnect.addListener(function(port) {
             break;
         case 'checkAutoTradeState':
             checkAutoTradeState(port);
+            break;
+        case 'keyGenerator':
+            autoTrade.keyGenerator(port);
             break;
         default:
             console.log("It doesn't match port name:" + port.name);

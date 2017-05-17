@@ -23,6 +23,13 @@ var myTaobaoItems = [
 ];
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log(bp.currentURL, 'currentURL');
+    if (bp.currentURL.match(/\/product\/batch_auto_trade_chrome/)) {
+        document.querySelectorAll('.group-trade')[0].classList.remove('hide');
+    }
+    if (bp.currentURL.match(/\/trade\/itemlist\/list_bought_items.htm/)) {
+        document.querySelectorAll('.group-keyGen')[0].classList.remove('hide');
+    }
     // 確認是否正在執行自動拍, 正在執行的話就disabled按鈕
     checkAutoTrade();
 });
@@ -39,3 +46,16 @@ document.getElementById('auto-trade').addEventListener('click', function(e) {
         }
     });
 });
+
+document.getElementById('key-gen').addEventListener('click', function(e) {
+    var port = chrome.runtime.connect({
+        name: "keyGenerator"
+    });
+    port.postMessage({});
+    port.onMessage.addListener(function(msg) {
+        if (!msg.success) {
+            renderBySelectorName('.debugger', msg.message);
+        }
+    });
+});
+
