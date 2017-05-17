@@ -1,6 +1,7 @@
 window.currentURL = '';
 window.isAutoTradeStarted = false;
 window.cartUrl = 'https://world.taobao.com/cart/cart.htm?showResult=1';
+window.backfilledKey = '';
 // 存放從淘寶購物車爬到的資訊
 window.taobaoCartResult = [];
 
@@ -108,7 +109,8 @@ var autoTrade = (function() {
                 }, function(currentTabs) {
                     var currentTabId = currentTabs[0].id
                     function returnMsgCallback(res) {
-                        console.log(res, 'res of keyGenerator');
+                        window.backfilledKey = res.backfilledKey;
+                        autoTrade.chromeTabsCreate('keyGen.html');
                     }
                     chrome.tabs.sendMessage(currentTabId, {
                         type: 'keyGenerator'

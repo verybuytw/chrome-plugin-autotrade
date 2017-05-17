@@ -54,7 +54,6 @@ $(function() {
 });
 
 var runKeyGenerator = function() {
-    // alert('即將產生keyGenerator...');
     var backfilledKey = {};
     var boughtWrappers = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV');
 
