@@ -24,8 +24,11 @@ var myTaobaoItems = [
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log(bp.currentURL, 'currentURL');
-    if (bp.currentURL.match(/\/product\/batch_auto_trade_chrome/)) {
-        document.querySelectorAll('.group-trade')[0].classList.remove('hide');
+    if (bp.currentURL.match(/\/product\/batch_auto_trade_chrome\/taobao/)) {
+        document.querySelectorAll('.group-trade-taobao')[0].classList.remove('hide');
+    }
+    if (bp.currentURL.match(/\/product\/batch_auto_trade_chrome\/tmall/)) {
+        document.querySelectorAll('.group-trade-tmall')[0].classList.remove('hide');
     }
     if (bp.currentURL.match(/\/trade\/itemlist\/list_bought_items.htm/)) {
         document.querySelectorAll('.group-keyGen')[0].classList.remove('hide');
@@ -34,7 +37,21 @@ document.addEventListener('DOMContentLoaded', function() {
     checkAutoTrade();
 });
 
-document.getElementById('auto-trade').addEventListener('click', function(e) {
+document.getElementById('autoTrade-taobao').addEventListener('click', function(e) {
+    var port = chrome.runtime.connect({
+        // name: "tradeConfigFromPopup"
+        name: "tradeConfigFromContentScript"
+    });
+    port.postMessage({taobaoItems: myTaobaoItems});
+    port.onMessage.addListener(function(msg) {
+        if (!msg.success) {
+            renderBySelectorName('.debugger', msg.message);
+        }
+    });
+});
+
+document.getElementById('autoTrade-tmall').addEventListener('click', function(e) {
+    alert('in');return;
     var port = chrome.runtime.connect({
         // name: "tradeConfigFromPopup"
         name: "tradeConfigFromContentScript"

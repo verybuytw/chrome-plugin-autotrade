@@ -225,7 +225,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 
             chrome.storage.local.get('backfilledKey', function(resFromStorage) {
                 if (typeof resFromStorage.backfilledKey == 'undefined') {
-                    window.backfilledKey = '寶訂單號回填代碼已重設...';
+                    window.backfilledKey = '淘寶訂單號回填代碼已重設...';
                 } else {
                     window.backfilledKey = resFromStorage.backfilledKey;
                 }
