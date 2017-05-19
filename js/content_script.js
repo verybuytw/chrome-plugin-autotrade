@@ -10,7 +10,7 @@ $(function() {
             case 'autoTrade':
                 var currentSeq = msg.taobaoItem.seq;
                 var taobaoItem = msg.taobaoItem.content;
-                runAutoTrade('taobao', taobaoItem.id, taobaoItem.colorSku, taobaoItem.sizeSku, taobaoItem.colorCartFullName, taobaoItem.sizeCartFullName, taobaoItem.amount);
+                runAutoTrade(msg.taobaoType, taobaoItem.id, taobaoItem.colorSku, taobaoItem.sizeSku, taobaoItem.colorCartFullName, taobaoItem.sizeCartFullName, taobaoItem.amount);
                 // sendResponse 回傳訊息僅在同步內有效
                 sendResponse({currentSeq: currentSeq});
 
@@ -184,6 +184,7 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
             autoTrade.run();
             break;
         case 'tmall':
+        alert('執行天貓自動拍...');
             break;
         default:
             alert('執行自動拍對應不到相關型態！');

@@ -29,13 +29,18 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         return;
     }
     if (window.isAutoTradeStarted && tabStatus == 'complete') {
-        console.log('tabId: #' + tabId + ' onUpdated...');
+        // console.log('tabId: #' + tabId + ' onUpdated...');
+        // 預設跑 taobao 的建構式
+        var taobaoType = 'taobao';
+        if (tab.url.match(/tmall/)) {
+            taobaoType = 'tmall';
+        }
         function returnMsgCallback(res) {
             // console.log(res, 'Got a callback msg from cs...');
         }
-
         chrome.tabs.sendMessage(tabId, {
             type: 'autoTrade',
+            taobaoType: taobaoType,
             taobaoItem: autoTrade.getTaobaoItem()
         }, returnMsgCallback);
     }
@@ -63,7 +68,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
             }
 
             autoTrade.setTaobaoItem(seq, autoTrade.getTaobaoListContentBySeq(seq));
-            triggerAutoTrade();
+            triggerAutoTrade('taobao');
 
             chrome.tabs.remove([sender.tab.id]);
             break;
@@ -144,10 +149,14 @@ var autoTrade = (function() {
                             port.postMessage({success: false, message: 'Error: content script 不可在chrome extensions 網域執行！'});
                             return;
                         }
-                        if (res.succsess && typeof res.taobaoItems != 'undefined') {
-
+                        if (res.succsess && 'taobaoItems' in res && res.taobaoItems.length > 0) {
                             autoTrade.initTaobaoItemList(res.taobaoItems);
-                            triggerAutoTrade();
+                            if ('taobaoType' in msg == false) {
+                                window.isAutoTradeStarted = false;
+                                port.postMessage({success: false, message: 'Error: taobaoType not in tradeConfigFromContentScript！'});
+                                return;
+                            }
+                            triggerAutoTrade(msg.taobaoType);
                         } else {
                             window.isAutoTradeStarted = false;
                             port.postMessage({success: false, message: 'Error: content script 找不到 定義的 taobaoItems javascript 物件結構 (Hint: document.getElementById("taobaoItemsContentScript"))！'});
@@ -250,13 +259,23 @@ var setTradeConfigFromPopup = function(port) {
             return;
         }
         autoTrade.initTaobaoItemList(msg.taobaoItems);
-        triggerAutoTrade();
+        if ('taobaoType' in msg == false) {
+            msg.taobaoType = 'taobao'
+        }
+        triggerAutoTrade(msg.taobaoType);
     });
 }
 
-var triggerAutoTrade = function() {
+var triggerAutoTrade = function(taobaoType = 'taobao') {
     var taobaoItemId = autoTrade.getTaobaoItem().content.id;
-    // var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId;
-    var url = 'https://world.taobao.com/item/' + taobaoItemId + '.htm';
+    var url = null;
+    switch(taobaoType) {
+        case 'taobao':
+            url = 'https://world.taobao.com/item/' + taobaoItemId + '.htm';
+            break;
+        case 'tmall':
+            url = 'https://world.tmall.com/item/' + taobaoItemId + '.htm';
+            break;
+    }
     autoTrade.chromeTabsCreate(url);
 }

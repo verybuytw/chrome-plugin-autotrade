@@ -17,9 +17,14 @@ function checkAutoTrade() {
 // bp 可以單向使用background.js的函數
 var bp = chrome.extension.getBackgroundPage();
 // port.name = tradeConfigFromPopup 才會用到以下測試用的 data
+// 淘寶商品測試資料
+// var myTaobaoItems = [
+//     {id: '527361405258', colorSku: '1627207:149938866', sizeSku: '20509:28315', amount: 3},
+//     {id: '545998369080', colorSku: '1627207:7201401', sizeSku: '20509:1446377418', amount: 5}
+// ];
+// 天貓商品測試資料
 var myTaobaoItems = [
-    {id: '527361405258', colorSku: '1627207:149938866', sizeSku: '20509:28315', amount: 3},
-    {id: '545998369080', colorSku: '1627207:7201401', sizeSku: '20509:1446377418', amount: 5}
+    {id: '545923811219', colorSku: '1627207:30155', sizeSku: '20509:28314', amount: 1}
 ];
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -42,7 +47,11 @@ document.getElementById('autoTrade-taobao').addEventListener('click', function(e
         // name: "tradeConfigFromPopup"
         name: "tradeConfigFromContentScript"
     });
-    port.postMessage({taobaoItems: myTaobaoItems});
+    port.postMessage({
+        taobaoItems: myTaobaoItems,
+        taobaoType: 'taobao'
+    });
+
     port.onMessage.addListener(function(msg) {
         if (!msg.success) {
             renderBySelectorName('.debugger', msg.message);
@@ -51,12 +60,15 @@ document.getElementById('autoTrade-taobao').addEventListener('click', function(e
 });
 
 document.getElementById('autoTrade-tmall').addEventListener('click', function(e) {
-    alert('in');return;
     var port = chrome.runtime.connect({
-        // name: "tradeConfigFromPopup"
-        name: "tradeConfigFromContentScript"
+        name: "tradeConfigFromPopup"
+        // name: "tradeConfigFromContentScript"
     });
-    port.postMessage({taobaoItems: myTaobaoItems});
+    port.postMessage({
+        taobaoItems: myTaobaoItems,
+        taobaoType: 'tmall'
+    });
+
     port.onMessage.addListener(function(msg) {
         if (!msg.success) {
             renderBySelectorName('.debugger', msg.message);
