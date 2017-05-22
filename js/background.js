@@ -68,7 +68,12 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
             }
 
             autoTrade.setTaobaoItem(seq, autoTrade.getTaobaoListContentBySeq(seq));
-            triggerAutoTrade('taobao');
+
+            var taobaoType = 'taobao';
+            if (sender.tab.url.match(/tmall/)) {
+                taobaoType = 'tmall';
+            }
+            triggerAutoTrade(taobaoType);
 
             chrome.tabs.remove([sender.tab.id]);
             break;
@@ -91,13 +96,14 @@ var autoTrade = (function() {
             id: '0',
             colorSku: '',
             sizeSku: '',
-            amount: 0
+            amount: 0,
+            skuId: ''
         }
     };
     // var taobaoItemList = [];
     var taobaoItemList = [
         {
-            content: {id: '', colorSku: '', sizeSku: '', amount: 0},
+            content: {id: '', colorSku: '', sizeSku: '', amount: 0, skuId: ''},
             done: 0
         }
     ];
@@ -271,13 +277,17 @@ var setTradeConfigFromPopup = function(port) {
 
 var triggerAutoTrade = function(taobaoType = 'taobao') {
     var taobaoItemId = autoTrade.getTaobaoItem().content.id;
+    var skuId = null;
+    if ('skuId' in autoTrade.getTaobaoItem().content) {
+        skuId = autoTrade.getTaobaoItem().content.skuId;
+    }
     var url = null;
     switch(taobaoType) {
         case 'taobao':
             url = 'https://world.taobao.com/item/' + taobaoItemId + '.htm';
             break;
         case 'tmall':
-            url = 'https://world.tmall.com/item/' + taobaoItemId + '.htm';
+            url = 'https://world.tmall.com/item/' + taobaoItemId + '.htm?skuId=' + skuId;
             break;
     }
     autoTrade.chromeTabsCreate(url);

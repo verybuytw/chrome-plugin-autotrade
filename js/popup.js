@@ -24,7 +24,8 @@ var bp = chrome.extension.getBackgroundPage();
 // ];
 // 天貓商品測試資料
 var myTaobaoItems = [
-    {id: '545923811219', colorSku: '1627207:30155', sizeSku: '20509:28314', amount: 1}
+    {id: '545634494258', colorSku: '1627207:1680461697', sizeSku: '20509:387654415', amount: 3, skuId: '3457276779999'},
+    {id: '545923811219', colorSku: '1627207:30155', sizeSku: '20509:28314', amount: 5, skuId: '3460491719440'}
 ];
 
 document.addEventListener('DOMContentLoaded', function() {

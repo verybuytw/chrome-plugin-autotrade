@@ -98,6 +98,7 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
     }
     switch(type) {
         case 'taobao':
+            // 執行淘寶自動拍
             function TaobaoAutoTrade() {
                 this.taobaoItemId = taobaoItemId;
                 this.colorSku = colorSku;
@@ -184,7 +185,74 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
             autoTrade.run();
             break;
         case 'tmall':
-        alert('執行天貓自動拍...');
+            // alert('執行天貓自動拍...');
+            // 執行天貓自動拍
+            function TmallAutoTrade() {
+                this.taobaoItemId = taobaoItemId;
+                this.colorSku = colorSku;
+                this.sizeSku = sizeSku;
+                this.colorCartFullName = colorCartFullName;
+                this.sizeCartFullName = sizeCartFullName;
+                this.amount = amount;
+            }
+            TmallAutoTrade.prototype.run = function() {
+                // 必須要用skuid來選顏色尺寸...
+                colorLabel: {
+                    // 用來檢測商品顏色項目是否存在
+                    // 雖然選擇 顏色&尺寸是靠網址query string: skuid來決定
+                    if (this.sizeSku === null) {
+                        // 表示此商品本來就沒sizeSku項目
+                        alert('sizeSku null');
+                        break colorLabel;
+                    }
+                    var colorSkuElement = document.querySelectorAll('.J_TSaleProp[data-property="颜色分类"] li[data-value="' + this.colorSku + '"]');
+
+                    if (detection.ifElementNotExisted(colorSkuElement, 'id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在', false)) {
+                        window.isTradeDone = true;
+                        return;
+                    }
+                }
+                sizeLabel: {
+                    // 用來檢測商品尺寸項目是否存在
+                    if (this.sizeSku === null) {
+                        // 表示此商品本來就沒sizeSku項目
+                        alert('sizeSku null');
+                        break sizeLabel;
+                    }
+                    var sizeSkuElement = document.querySelectorAll('.J_TSaleProp[data-property="尺码"] li[data-value="' + this.sizeSku + '"]');
+
+                    if (detection.ifElementNotExisted(sizeSkuElement, 'id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在', false)) {
+                        window.isTradeDone = true;
+                        return;
+                    }
+                }
+
+                this.setAmountByTriggerIncrease(this.amount);
+
+                var amount_delay = this.amount * 350;
+
+                setTimeout(function() {
+
+                    document.querySelectorAll('.tb-btn-basket')[0].querySelectorAll('a')[0].click();
+                    setTimeout(function() {
+                        window.isTradeDone = true;
+                    }, 5000);
+                }, amount_delay);
+            };
+            TmallAutoTrade.prototype.setAmountByTriggerIncrease = function(amount) {
+                var i = 1;
+                interval = setInterval(function() {
+                    if(i == amount) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    document.querySelectorAll('#J_Amount .mui-amount-increase')[0].click();
+                    i++
+                }, 350);
+            };
+
+            var autoTrade = new TmallAutoTrade();
+            autoTrade.run();
             break;
         default:
             alert('執行自動拍對應不到相關型態！');
