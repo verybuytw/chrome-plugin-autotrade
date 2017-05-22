@@ -156,6 +156,9 @@ var autoTrade = (function() {
                                 port.postMessage({success: false, message: 'Error: taobaoType not in tradeConfigFromContentScript！'});
                                 return;
                             }
+                            // 觸發自動拍表示前一次的回填代碼可以重置
+                            chrome.storage.local.remove('backfilledKey');
+
                             triggerAutoTrade(msg.taobaoType);
                         } else {
                             window.isAutoTradeStarted = false;
