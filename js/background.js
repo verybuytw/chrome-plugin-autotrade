@@ -25,6 +25,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (tab.url == window.cartUrl) {
         chrome.tabs.sendMessage(tabId, {
             type: 'showResult',
+            taobaoType: autoTrade.getRunType()
         });
         return;
     }
@@ -89,6 +90,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 
 // 儲存自動執行點選 taobao item 內容的所有狀態
 var autoTrade = (function() {
+    var taobaoType = null;
     var totalItem = 0;
     var taobaoItem = {
         seq: 0,
@@ -165,6 +167,7 @@ var autoTrade = (function() {
                             // 觸發自動拍表示前一次的回填代碼可以重置
                             chrome.storage.local.remove('backfilledKey');
 
+                            autoTrade.setRunType(msg.taobaoType);
                             triggerAutoTrade(msg.taobaoType);
                         } else {
                             window.isAutoTradeStarted = false;
@@ -185,6 +188,12 @@ var autoTrade = (function() {
             taobaoItem.seq = 0;
             taobaoItem.content = taobaoItemList[0].content;
             totalItem = taobaoItemList.length;
+        },
+        setRunType: function(type) {
+            taobaoType = type;
+        },
+        getRunType: function() {
+            return taobaoType;
         },
         getTaobaoItemList: function() {
             return taobaoItemList;

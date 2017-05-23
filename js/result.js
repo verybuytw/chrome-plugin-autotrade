@@ -117,8 +117,13 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
                         break cartFullNameIssue;
                     }
                     var taobaoCartItemByParser = JSON.parse(taobaoCartItem.cKey[0]);
-                    taobaoCartItem.colorCartFullName = taobaoCartItemByParser.colorCartFullName;
-                    taobaoCartItem.sizeCartFullName = taobaoCartItemByParser.sizeCartFullName;
+                    if (taobaoCartItemByParser.colorCartFullName.match(/颜/)) {
+                        taobaoCartItem.colorCartFullName = taobaoCartItemByParser.colorCartFullName;
+                        taobaoCartItem.sizeCartFullName = taobaoCartItemByParser.sizeCartFullName;
+                    } else {
+                        taobaoCartItem.colorCartFullName = taobaoCartItemByParser.sizeCartFullName;
+                        taobaoCartItem.sizeCartFullName = taobaoCartItemByParser.colorCartFullName;
+                    }
                 }
             }
         });
