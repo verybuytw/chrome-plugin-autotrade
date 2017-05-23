@@ -200,14 +200,14 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                 colorLabel: {
                     // 用來檢測商品顏色項目是否存在
                     // 雖然選擇 顏色&尺寸是靠網址query string: skuid來決定
-                    if (this.sizeSku === null) {
-                        // 表示此商品本來就沒sizeSku項目
-                        alert('sizeSku null');
+                    if (this.colorSku === null) {
+                        // 表示此商品本來就沒colorSku項目
                         break colorLabel;
                     }
-                    var colorSkuElement = document.querySelectorAll('.J_TSaleProp[data-property="颜色分类"] li[data-value="' + this.colorSku + '"]');
+                    var colorSkuElement = document.querySelectorAll('.J_TSaleProp li[data-value="' + this.colorSku + '"]');
 
-                    if (detection.ifElementNotExisted(colorSkuElement, 'id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在', false)) {
+                    if (colorSkuElement[0].style.display == 'none') {
+                        alert('id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在');
                         window.isTradeDone = true;
                         return;
                     }
@@ -216,12 +216,12 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                     // 用來檢測商品尺寸項目是否存在
                     if (this.sizeSku === null) {
                         // 表示此商品本來就沒sizeSku項目
-                        alert('sizeSku null');
                         break sizeLabel;
                     }
-                    var sizeSkuElement = document.querySelectorAll('.J_TSaleProp[data-property="尺码"] li[data-value="' + this.sizeSku + '"]');
+                    var sizeSkuElement = document.querySelectorAll('.J_TSaleProp li[data-value="' + this.sizeSku + '"]');
 
-                    if (detection.ifElementNotExisted(sizeSkuElement, 'id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在', false)) {
+                    if (sizeSkuElement[0].style.display == 'none') {
+                        alert('id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在');
                         window.isTradeDone = true;
                         return;
                     }
@@ -234,9 +234,10 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                 setTimeout(function() {
 
                     document.querySelectorAll('.tb-btn-basket')[0].querySelectorAll('a')[0].click();
+
                     setTimeout(function() {
                         window.isTradeDone = true;
-                    }, 5000);
+                    }, 3000);
                 }, amount_delay);
             };
             TmallAutoTrade.prototype.setAmountByTriggerIncrease = function(amount) {
@@ -424,14 +425,14 @@ var detection = (function() {
     Detection.prototype.ifElementNotExisted = function(element, alertMessage = '偵測到不存在元素', closeAlert) {
         if (element === null) {
             if (!closeAlert) {
-                alert('Error: length of element@elementExistedDetection is null');
+                alert('Error: length of element@elementExistedDetection is null\n' + alertMessage);
             }
             console.error(alertMessage, 'Detection@isElementExisted');
             return true;
         }
         if (element.length == 0) {
             if (!closeAlert) {
-                alert('Error: length of element@elementExistedDetection is undefined');
+                alert('Error: length of element@elementExistedDetection is undefined\n' + alertMessage);
             }
             console.error(alertMessage, 'Detection@isElementExisted');
             return true;
@@ -464,7 +465,6 @@ var popupCloseEnsureExisted = function(callback, startDateTime) {
         window.isTradeDone = true;
         return;
     }
-
     if (typeof document.querySelectorAll('.J_popup_close.sea-iconfont')[0] == 'undefined') {
         setTimeout(function() { popupCloseEnsureExisted(callback, startDateTime); }, 50);
     } else {
