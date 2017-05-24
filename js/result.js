@@ -125,6 +125,7 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
                 taobaoCartItem.match = 1;
                 taobaoCartItem.extraInfo = 'V';
                 isMatched = true;
+                taobaoCartItem.id = vbTaobaoItem.id;
                 taobaoCartItem.colorCartFullName = vbTaobaoItem.colorCartFullName;
                 taobaoCartItem.sizeCartFullName = vbTaobaoItem.sizeCartFullName;
             } else {
@@ -133,7 +134,7 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
                         break cartFullNameIssue;
                     }
                     var taobaoCartItemByParser = JSON.parse(taobaoCartItem.cKey[0]);
-                    if (taobaoCartItemByParser.colorCartFullName.match(/颜/)) {
+                    if (taobaoCartItemByParser.colorCartFullName.match(/颜/) || taobaoCartItemByParser.colorCartFullName.match(/顏/)) {
                         taobaoCartItem.colorCartFullName = taobaoCartItemByParser.colorCartFullName;
                         taobaoCartItem.sizeCartFullName = taobaoCartItemByParser.sizeCartFullName;
                     } else {
