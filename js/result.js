@@ -1,10 +1,25 @@
 var renderTable = function(tableId, tableContent) {
 
     var tbody = '';
+    var index = 1;
 
     $.each(tableContent, function(i, itemContent) {
         tbody += '<tr>';
-        tbody += '<td>' + (i + 1) + '</td>';
+
+        if (typeof itemContent.match !== 'undefined') {
+
+            if (itemContent.id.match(/後台來源資料/)) {
+
+                tbody += '<td>' + index + '</td>';
+                index++;
+            } else {
+
+                tbody += '<td></td>';
+            }
+        } else {
+            tbody += '<td>' + (i + 1) + '</td>';
+        }
+
         tbody += '<td>' + ((typeof itemContent.id !== 'undefined') ? itemContent.id : '-') + '</td>';
         tbody += '<td>' + ((typeof itemContent.name !== 'undefined') ? itemContent.name : '-') + '</td>';
 
@@ -104,6 +119,7 @@ var getComparisonResult = function(vbTaobaoItems, taobaoCartItems) {
 
     vbTaobaoItems.forEach(function(vbTaobaoItem, i) {
         var isMatched = false;
+        vbTaobaoItem.id = vbTaobaoItem.id + '<br><code>後台來源資料</code>';
         taobaoCartItems.forEach(function(taobaoCartItem, j) {
             if (vbTaobaoItem.cKey == taobaoCartItem.cKey[0] || vbTaobaoItem.cKey == taobaoCartItem.cKey[1]) {
                 taobaoCartItem.match = 1;

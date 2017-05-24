@@ -9,7 +9,8 @@ function checkAutoTrade() {
     port.postMessage({});
     port.onMessage.addListener(function(msg) {
         if (msg.isAutoTradeStarted) {
-            document.getElementById('auto-trade').setAttribute('disabled', 1);
+            document.getElementById('autoTrade-taobao').setAttribute('disabled', 1);
+            document.getElementById('autoTrade-tmall').setAttribute('disabled', 1);
         }
     });
 }

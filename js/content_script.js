@@ -490,7 +490,7 @@ var detectionHelper = function() {
 
 var autoTradeEnsureDone = function(callback) {
     if (!window.isTradeDone) {
-        setTimeout(function() { autoTradeEnsureDone(callback); }, 50);
+        setTimeout(function() { autoTradeEnsureDone(callback); }, 500);
     } else {
         if (callback) {
             callback();
@@ -504,7 +504,7 @@ var popupCloseEnsureExisted = function(callback, startDateTime) {
         return;
     }
     if (typeof document.querySelectorAll('.J_popup_close.sea-iconfont')[0] == 'undefined') {
-        setTimeout(function() { popupCloseEnsureExisted(callback, startDateTime); }, 50);
+        setTimeout(function() { popupCloseEnsureExisted(callback, startDateTime); }, 500);
     } else {
         if (callback) {
             callback();
