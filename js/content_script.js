@@ -105,8 +105,8 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
             // 執行淘寶自動拍
             function TaobaoAutoTrade() {
                 this.taobaoItemId = taobaoItemId;
-                this.colorSku = colorSku;
-                this.sizeSku = sizeSku;
+                this.colorSku = (typeof colorSku == 'undefined') ? null : colorSku;
+                this.sizeSku = (typeof sizeSku == 'undefined') ? null : sizeSku;
                 this.colorCartFullName = colorCartFullName;
                 this.sizeCartFullName = sizeCartFullName;
                 this.amount = amount;
@@ -192,8 +192,8 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
             // 執行天貓自動拍
             function TmallAutoTrade() {
                 this.taobaoItemId = taobaoItemId;
-                this.colorSku = colorSku;
-                this.sizeSku = sizeSku;
+                this.colorSku = (typeof colorSku == 'undefined') ? null : colorSku;
+                this.sizeSku = (typeof sizeSku == 'undefined') ? null : sizeSku;
                 this.colorCartFullName = colorCartFullName;
                 this.sizeCartFullName = sizeCartFullName;
                 this.amount = amount;
