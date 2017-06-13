@@ -394,7 +394,7 @@ var parseTaobaoCartContentByTaobaoType = function(taobaoType) {
                 var o = {
                     id: item.id,
                     colorCartFullName: mixedSkuNames[0].textContent.replace('：', ':'),
-                    sizeCartFullName: '單一',
+                    sizeCartFullName: '单一',
                     amount: item.amount
                 }
                 taobaoCartResult[i].cKey = [];
@@ -402,7 +402,7 @@ var parseTaobaoCartContentByTaobaoType = function(taobaoType) {
 
                 o = {
                     id: item.id,
-                    colorCartFullName: '單一',
+                    colorCartFullName: '单一',
                     sizeCartFullName: mixedSkuNames[0].textContent.replace('：', ':'),
                     amount: item.amount
                 }
