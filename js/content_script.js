@@ -118,7 +118,7 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                         // alert('colorSku null');
                         break colorLabel;
                     }
-                    var colorSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + this.colorSku + '"]');
+                    var colorSkuElement = document.querySelectorAll('.tb-clearfix > li[data-value="' + this.colorSku + '"]');
                     if (detection.ifElementNotExisted(colorSkuElement, 'id: ' + this.taobaoItemId + ' - colorSku: ' + this.colorSku + '不存在', true)) {
                         window.isTradeDone = true;
                         return;
@@ -138,7 +138,7 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                         // alert('sizeSku null');
                         break sizeLabel;
                     }
-                    var sizeSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + this.sizeSku + '"]');
+                    var sizeSkuElement = document.querySelectorAll('.tb-clearfix > li[data-value="' + this.sizeSku + '"]');
 
                     if (detection.ifElementNotExisted(sizeSkuElement, 'id: ' + this.taobaoItemId + ' - sizeSku: ' + this.sizeSku + '不存在', true)) {
                         window.isTradeDone = true;
@@ -165,10 +165,9 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                 var amount_delay = this.amount * 350;
 
                 setTimeout(function() {
-                    document.getElementById('J_btn_addToCart').click();
+                    document.querySelectorAll('#J_juValid .tb-btn-add .J_LinkAdd')[0].click();
 
-                    popupCloseEnsureExisted(function() {
-                        document.querySelectorAll('.J_popup_close.sea-iconfont')[0].click();
+                    ensureAddToCartRedirected(function() {
                         window.isTradeDone = true;
                     }, Date.now());
                 }, amount_delay);
@@ -180,7 +179,7 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                         clearInterval(interval);
                         return;
                     }
-                    document.querySelectorAll('.tb-increase.J_Increase.sea-iconfont')[0].click();
+                    document.querySelectorAll('.tb-increase.J_Increase')[0].click();
                     i++
                 }, 350);
             };
@@ -280,7 +279,7 @@ var additionalInfoBytaobaoType = function(taobaoType) {
         var taobaoItemName = null;
 
         if (taobaoType == 'taobao') {
-            taobaoItemName = document.querySelectorAll('#J_Title .tb-main-title .t-title')[0].textContent;
+            taobaoItemName = document.querySelectorAll('#J_Title .tb-main-title')[0].textContent;
         }
         if (taobaoType == 'tmall') {
             taobaoItemName = document.querySelectorAll('.tb-detail-hd h1')[0].textContent;
@@ -292,7 +291,7 @@ var additionalInfoBytaobaoType = function(taobaoType) {
         var colorSkuElement = null;
 
         if (taobaoType == 'taobao') {
-            colorSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + colorSku + '"] > a');
+            colorSkuElement = document.querySelectorAll('.tb-clearfix > li[data-value="' + colorSku + '"] > a');
             nameByColorSku = colorSkuElement[0].getAttribute('title');
         }
         if (taobaoType == 'tmall') {
@@ -306,7 +305,7 @@ var additionalInfoBytaobaoType = function(taobaoType) {
         var sizeSkuElement = null;
 
         if (taobaoType == 'taobao') {
-            sizeSkuElement = document.querySelectorAll('.tb-cleafix > .J_SKU[data-pv="' + sizeSku + '"] > a');
+            sizeSkuElement = document.querySelectorAll('.tb-clearfix > li[data-value="' + sizeSku + '"] > a');
             nameBySizeSku = sizeSkuElement[0].getAttribute('title');
         }
         if (taobaoType == 'tmall') {
@@ -365,9 +364,9 @@ var parseTaobaoCartContentByTaobaoType = function(taobaoType) {
         basicInfo.forEach(function(item) {
             // name of item
             result[0].push(item.textContent);
-            // href with id
-            var href = item.getAttribute('href').split('//world.taobao.com/item/')[1];
-            var taobaoItemid = href.split('.')[0];
+            // get id
+            var url = new URL(item.getAttribute('href'));
+            var taobaoItemid = url.searchParams.get('id');
             result[1].push(taobaoItemid);
         });
         return result;
@@ -498,13 +497,13 @@ var autoTradeEnsureDone = function(callback) {
     }
 };
 
-var popupCloseEnsureExisted = function(callback, startDateTime) {
-    if (detection.timeout(Date.now(), startDateTime, 3000, 'Error: 淘寶購物車Alert通知逾時')) {
+var ensureAddToCartRedirected = function(callback, startDateTime) {
+    if (detection.timeout(Date.now(), startDateTime, 5000, 'Error: 淘寶購物車Alert通知逾時')) {
         window.isTradeDone = true;
         return;
     }
-    if (typeof document.querySelectorAll('.J_popup_close.sea-iconfont')[0] == 'undefined') {
-        setTimeout(function() { popupCloseEnsureExisted(callback, startDateTime); }, 500);
+    if (typeof document.querySelectorAll('#J_ResultSummary .result-hint .icon-success')[0] == 'undefined') {
+        setTimeout(function() { ensureAddToCartRedirected(callback, startDateTime); }, 500);
     } else {
         if (callback) {
             callback();

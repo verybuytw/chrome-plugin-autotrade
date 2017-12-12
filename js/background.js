@@ -290,14 +290,6 @@ var triggerAutoTrade = function(taobaoType = 'taobao') {
     if ('skuId' in autoTrade.getTaobaoItem().content) {
         skuId = autoTrade.getTaobaoItem().content.skuId;
     }
-    var url = null;
-    switch(taobaoType) {
-        case 'taobao':
-            url = 'https://world.taobao.com/item/' + taobaoItemId + '.htm';
-            break;
-        case 'tmall':
-            url = 'https://world.tmall.com/item/' + taobaoItemId + '.htm?skuId=' + skuId;
-            break;
-    }
+    var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId + '&skuId=' + skuId;
     autoTrade.chromeTabsCreate(url);
 }
