@@ -92,7 +92,7 @@ document.getElementById('key-gen').addEventListener('click', function(e) {
 
 document.getElementById('key-reset').addEventListener('click', function(e) {
     var port = chrome.runtime.connect({
-        name: "resetBackfilledKey"
+        name: "resetBackfilledInfo"
     });
 });
 

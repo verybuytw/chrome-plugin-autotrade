@@ -1,7 +1,7 @@
 window.currentURL = '';
 window.isAutoTradeStarted = false;
 window.cartUrl = 'https://world.taobao.com/cart/cart.htm?showResult=1';
-window.backfilledKey = '';
+window.backfilledInfo = '';
 // 存放從淘寶購物車爬到的資訊
 window.taobaoCartResult = [];
 
@@ -122,20 +122,19 @@ var autoTrade = (function() {
                 }, function(currentTabs) {
                     var currentTabId = currentTabs[0].id
                     function returnMsgCallback(resFromParser) {
-
-                        chrome.storage.local.get('backfilledKey', function(resFromStorage) {
-                            if (typeof resFromStorage.backfilledKey == 'undefined') {
-                                window.backfilledKey = resFromParser.backfilledKey;
+                        chrome.storage.local.get('backfilledInfo', function(resFromStorage) {
+                            if (typeof resFromStorage.backfilledInfo == 'undefined') {
+                                window.backfilledInfo = resFromParser.backfilledInfo;
                             } else {
-                                var _o = JSON.parse(resFromStorage.backfilledKey);
-                                var o = JSON.parse(resFromParser.backfilledKey);
+                                var _o = resFromStorage.backfilledInfo;
+                                var o = resFromParser.backfilledInfo;
                                 var m_o = Object.assign(_o, o);
 
-                                window.backfilledKey = JSON.stringify(m_o);
+                                window.backfilledInfo = JSON.stringify(m_o);
                             }
 
-                            chrome.storage.local.set({'backfilledKey': window.backfilledKey});
-                            autoTrade.chromeTabsCreate('keyGen.html');
+                            chrome.storage.local.set({'backfilledInfo': window.backfilledInfo});
+                            autoTrade.fillTids();
                         });
                     }
                     chrome.tabs.sendMessage(currentTabId, {
@@ -143,6 +142,22 @@ var autoTrade = (function() {
                     }, returnMsgCallback);
                 });
             });
+        },
+        fillTids: function() {
+           chrome.tabs.query({
+               url: '*://*.verybuy.tw/product/batch_auto_trade_chrome/*'
+           }, function(currentTabs) {
+               if (0 === currentTabs.length) {
+                   alert('找不到回填目標後台頁面');
+                   return;
+               }
+               for (let i in currentTabs) {
+                   let targetTabId = currentTabs[i].id;
+                   chrome.tabs.sendMessage(targetTabId, {
+                       type: 'fillTids'
+                   });
+               }
+           });
         },
         tradeConfigFromContentScript: function(port) {
             port.onMessage.addListener(function(msg) {
@@ -165,7 +180,7 @@ var autoTrade = (function() {
                                 return;
                             }
                             // 觸發自動拍表示前一次的回填代碼可以重置
-                            chrome.storage.local.remove('backfilledKey');
+                            chrome.storage.local.remove('backfilledInfo');
 
                             autoTrade.setRunType(msg.taobaoType);
                             triggerAutoTrade(msg.taobaoType);
@@ -246,15 +261,15 @@ chrome.runtime.onConnect.addListener(function(port) {
         case 'keyGenerator':
             autoTrade.keyGenerator(port);
             break;
-        case 'resetBackfilledKey':
+        case 'resetBackfilledInfo':
 
-            chrome.storage.local.remove('backfilledKey');
+            chrome.storage.local.remove('backfilledInfo');
 
-            chrome.storage.local.get('backfilledKey', function(resFromStorage) {
-                if (typeof resFromStorage.backfilledKey == 'undefined') {
-                    window.backfilledKey = '淘寶訂單號回填代碼已重設...';
+            chrome.storage.local.get('backfilledInfo', function(resFromStorage) {
+                if (typeof resFromStorage.backfilledInfo == 'undefined') {
+                    window.backfilledInfo = '淘寶訂單號回填代碼已重設...';
                 } else {
-                    window.backfilledKey = resFromStorage.backfilledKey;
+                    window.backfilledInfo = resFromStorage.backfilledInfo;
                 }
                 autoTrade.chromeTabsCreate('keyGen.html');
             });

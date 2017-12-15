@@ -49,8 +49,33 @@ $(function() {
             case 'keyGenerator':
                 ;
                 // sendResponse 回傳訊息僅在同步內有效
-                sendResponse({backfilledKey: runKeyGenerator()});
-                break
+                sendResponse({backfilledInfo: runKeyGenerator()});
+                break;
+            case 'fillTids':
+                chrome.storage.local.get('backfilledInfo', function(items) {
+                    //console.log(items);
+                    var bill = JSON.parse(items);
+                    //var taobaoItemId = bill.taobaoItemId;
+                    var taobaoItemId = '533246673399';
+                    var table = document.getElementById('taobaoItemsContentScript');
+                    var selector = '[data-item-id="' + taobaoItemId + '"]';
+                    var rows = table.querySelectorAll(selector);
+                    // FIXME: 沒反應
+                    console.log(rows);
+                    for (let i in rows) {
+                        var row = rows[i];
+                        console.log(row);
+                        for (let i in bill.skuStrings) {
+                            let matchString = bill.skuStrings[i].replace('：', ':');
+                            if (!row.textContent.match(matchString)) {
+                                break;
+                            }
+                            // 填入訂單號
+                            console.log(row);
+                        }
+                    }
+                });
+                break;
             default:
                 console.log("It doesn't match type:" + msg.type);
         }
@@ -58,23 +83,25 @@ $(function() {
 });
 
 var runKeyGenerator = function() {
-    var backfilledKey = {};
+    var backfilledInfo = [];
     var boughtWrappers = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV');
 
-    for (var i = 0; i < boughtWrappers.length; i++) {
+    for (let i = 0; i < boughtWrappers.length; i++) {
         // 訂單號
         var taobaoOrderId = boughtWrappers[i].getAttribute('data-id');
 
         if (document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] .bought-wrapper-mod__checkbox___11anQ > input')[0].disabled == true) {
             // 不是能勾選的狀態不用理
-            continue;
+            //continue;
         }
         var tbody = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] tbody')
 
         // tbody 1~n , 0 不含 taobaoitemId 資訊
-        for (var n = 1; n < tbody.length; n++) {
+        for (let n = 1; n < tbody.length; n++) {
+            var wrapperDiv = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"]')[0];
+
             // a tag 藏有 taobaoitemId
-            var atag = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] tbody')[n].querySelectorAll('tr td')[0].querySelectorAll('a')[0];
+            var atag = wrapperDiv.querySelectorAll('tbody')[n].querySelectorAll('tr td')[0].querySelectorAll('a')[0];
 
             var taobaoItemId = null;
             var itemLink = atag.getAttribute('href');
@@ -88,10 +115,22 @@ var runKeyGenerator = function() {
             if (taobaoItemId === null) {
                 alert('解析商品ID發生錯誤\nError: taobaoItemId === null');
             }
-            backfilledKey[taobaoItemId] = taobaoOrderId;
+
+            // 顏色尺寸
+            var skuStrings = [];
+            var skuSpans = wrapperDiv.querySelectorAll('.production-mod__sku-item___1-Pxk');
+            for (let i = 0; i < skuSpans.length; i++) {
+                skuStrings.push(skuSpans[i].textContent);
+            }
+
+            backfilledInfo.push({
+                'taobaoItemId': taobaoItemId,
+                'skuStrings': skuStrings,
+                'taobaoOrderId': taobaoOrderId
+            });
         }
     }
-    return JSON.stringify(backfilledKey);
+    return backfilledInfo;
 };
 
 var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
