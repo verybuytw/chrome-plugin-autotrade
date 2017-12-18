@@ -121,21 +121,8 @@ var autoTrade = (function() {
                     active: true
                 }, function(currentTabs) {
                     var currentTabId = currentTabs[0].id
-                    function returnMsgCallback(resFromParser) {
-                        chrome.storage.local.get('backfilledInfo', function(resFromStorage) {
-                            if (typeof resFromStorage.backfilledInfo == 'undefined') {
-                                window.backfilledInfo = resFromParser.backfilledInfo;
-                            } else {
-                                var _o = resFromStorage.backfilledInfo;
-                                var o = resFromParser.backfilledInfo;
-                                var m_o = Object.assign(_o, o);
-
-                                window.backfilledInfo = JSON.stringify(m_o);
-                            }
-
-                            chrome.storage.local.set({'backfilledInfo': window.backfilledInfo});
-                            autoTrade.fillTids();
-                        });
+                    function returnMsgCallback(res) {
+                        autoTrade.sendFillTidsMessage(res);
                     }
                     chrome.tabs.sendMessage(currentTabId, {
                         type: 'keyGenerator'
@@ -143,21 +130,25 @@ var autoTrade = (function() {
                 });
             });
         },
-        fillTids: function() {
-           chrome.tabs.query({
-               url: '*://*.verybuy.tw/product/batch_auto_trade_chrome/*'
-           }, function(currentTabs) {
-               if (0 === currentTabs.length) {
-                   alert('找不到回填目標後台頁面');
-                   return;
-               }
-               for (let i in currentTabs) {
-                   let targetTabId = currentTabs[i].id;
-                   chrome.tabs.sendMessage(targetTabId, {
-                       type: 'fillTids'
-                   });
-               }
-           });
+        sendFillTidsMessage: function(data) {
+            chrome.tabs.query({
+                url: '*://*.verybuy.tw/product/batch_auto_trade_chrome/*'
+            }, function(currentTabs) {
+                if (0 === currentTabs.length) {
+                    alert('找不到回填目標後台頁面');
+                    return;
+                }
+                for (let i in currentTabs) {
+                    let targetTabId = currentTabs[i].id;
+                    function returnMsgCallback(res) {
+                        alert('回填結束，成功回填 ' + res.success_count + ' 筆');
+                    }
+                    chrome.tabs.sendMessage(targetTabId, {
+                        type: 'fillTidsIntoTable',
+                        data: data
+                    }, returnMsgCallback);
+                }
+            });
         },
         tradeConfigFromContentScript: function(port) {
             port.onMessage.addListener(function(msg) {

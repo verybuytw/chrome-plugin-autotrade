@@ -51,30 +51,10 @@ $(function() {
                 // sendResponse 回傳訊息僅在同步內有效
                 sendResponse({backfilledInfo: runKeyGenerator()});
                 break;
-            case 'fillTids':
-                chrome.storage.local.get('backfilledInfo', function(items) {
-                    //console.log(items);
-                    var bill = JSON.parse(items);
-                    //var taobaoItemId = bill.taobaoItemId;
-                    var taobaoItemId = '533246673399';
-                    var table = document.getElementById('taobaoItemsContentScript');
-                    var selector = '[data-item-id="' + taobaoItemId + '"]';
-                    var rows = table.querySelectorAll(selector);
-                    // FIXME: 沒反應
-                    console.log(rows);
-                    for (let i in rows) {
-                        var row = rows[i];
-                        console.log(row);
-                        for (let i in bill.skuStrings) {
-                            let matchString = bill.skuStrings[i].replace('：', ':');
-                            if (!row.textContent.match(matchString)) {
-                                break;
-                            }
-                            // 填入訂單號
-                            console.log(row);
-                        }
-                    }
-                });
+            case 'fillTidsIntoTable':
+                var bill_items = msg.data.backfilledInfo;
+                var filled_result = fillTidsIntoTable(bill_items);
+                sendResponse(filled_result);
                 break;
             default:
                 console.log("It doesn't match type:" + msg.type);
@@ -561,4 +541,31 @@ var taobaoCartEnsureLoaded = function(callback, startDateTime) {
             callback();
         }
     }
+};
+
+var fillTidsIntoTable = function(bill_items) {
+    let success_count = 0;
+    for (let i in bill_items) {
+        // NOTE: 資料格式為 {taobaoItemId:"556786590860", skuStrings:["尺码：S", "颜色分类：墨绿色"], taobaoOrderId: "123"}
+        let bill_item = bill_items[i];
+        let taobaoItemId = bill_item.taobaoItemId;
+        let table = document.getElementById('taobaoItemsContentScript');
+        // 找出在所有在 table 中，該 taobaoItemId 對應的資料列
+        let selector = '[data-item-id="' + taobaoItemId + '"]';
+        let rows = table.querySelectorAll(selector);
+        rows.forEach(function(row) {
+            // 比對該列內是否含有每組 sku 的字串
+            for (let j in bill_item.skuStrings) {
+                let matchString = bill_item.skuStrings[j].replace('：', ':');
+                if (!row.textContent.match(matchString)) {
+                    return;
+                }
+            }
+            // 填入訂單號
+            let input_tid = row.querySelectorAll('.taobaoOrderId')[0];
+            input_tid.value = bill_item.taobaoOrderId;
+            success_count += 1;
+        });
+    }
+    return {success_count: success_count};
 };
