@@ -170,9 +170,6 @@ var autoTrade = (function() {
                                 port.postMessage({success: false, message: 'Error: taobaoType not in tradeConfigFromContentScript！'});
                                 return;
                             }
-                            // 觸發自動拍表示前一次的回填代碼可以重置
-                            chrome.storage.local.remove('backfilledInfo');
-
                             autoTrade.setRunType(msg.taobaoType);
                             triggerAutoTrade(msg.taobaoType);
                         } else {
@@ -251,19 +248,6 @@ chrome.runtime.onConnect.addListener(function(port) {
             break;
         case 'keyGenerator':
             autoTrade.keyGenerator(port);
-            break;
-        case 'resetBackfilledInfo':
-
-            chrome.storage.local.remove('backfilledInfo');
-
-            chrome.storage.local.get('backfilledInfo', function(resFromStorage) {
-                if (typeof resFromStorage.backfilledInfo == 'undefined') {
-                    window.backfilledInfo = '淘寶訂單號回填代碼已重設...';
-                } else {
-                    window.backfilledInfo = resFromStorage.backfilledInfo;
-                }
-                autoTrade.chromeTabsCreate('keyGen.html');
-            });
             break;
         default:
             console.log("It doesn't match port name:" + port.name);
