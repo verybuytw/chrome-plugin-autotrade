@@ -23,7 +23,7 @@ $(function() {
                     chrome.runtime.sendMessage({type: 'autoTrade', taobaoItemId: taobaoItem.id, additionalInfo: additionalInfo.getComparison()});
                 });
                 break;
-            case 'tradeConfigFromContentScript':
+            case 'prepareItemsFromContentScript':
                 // 要先 JSON.stringify() 再 encodeURIComponent()
                 // 範例儲存方式 <div id="taobaoItemsContentScript" data-items="%5B%7B%22id%22%3A%22527361405258%22%2C%22colorSku%22%3A%2220509%3A28315%22%2C%22sizeSku%22%3A%221627207%3A149938866%22%2C%22amount%22%3A10%7D%2C%7B%22id%22%3A%22545998369080%22%2C%22colorSku%22%3A%2220509%3A1446377418%22%2C%22sizeSku%22%3A%221627207%3A7201401%22%2C%22amount%22%3A8%7D%5D">我是taobaoItems<div>
                 var $targetElement = $('#taobaoItemsContentScript');

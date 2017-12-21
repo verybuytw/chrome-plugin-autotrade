@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('autoTrade-taobao').addEventListener('click', function(e) {
     var port = chrome.runtime.connect({
         // name: "tradeConfigFromPopup"
-        name: "tradeConfigFromContentScript"
+        name: "prepareItemsFromContentScript"
     });
     port.postMessage({
         'taobaoItems': taobaoItems,
@@ -64,7 +64,7 @@ document.getElementById('autoTrade-taobao').addEventListener('click', function(e
 document.getElementById('autoTrade-tmall').addEventListener('click', function(e) {
     var port = chrome.runtime.connect({
         // name: "tradeConfigFromPopup"
-        name: "tradeConfigFromContentScript"
+        name: "prepareItemsFromContentScript"
     });
     port.postMessage({
         'taobaoItems': tmallItems,

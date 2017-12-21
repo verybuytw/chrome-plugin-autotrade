@@ -144,7 +144,7 @@ var autoTrade = (function() {
                 });
             });
         },
-        tradeConfigFromContentScript: function(port) {
+        prepareItemsFromContentScript: function(port) {
             port.onMessage.addListener(function(msg) {
                 chrome.tabs.query({
                     currentWindow: true,
@@ -161,7 +161,7 @@ var autoTrade = (function() {
                             autoTrade.initTaobaoItemList(res.taobaoItems);
                             if ('taobaoType' in msg == false) {
                                 window.isAutoTradeStarted = false;
-                                port.postMessage({success: false, message: 'Error: taobaoType not in tradeConfigFromContentScript！'});
+                                port.postMessage({success: false, message: 'Error: taobaoType not in prepareItemsFromContentScript！'});
                                 return;
                             }
                             // 觸發自動拍表示前一次的回填代碼可以重置
@@ -175,7 +175,7 @@ var autoTrade = (function() {
                         }
                     }
                     chrome.tabs.sendMessage(currentTabId, {
-                        type: 'tradeConfigFromContentScript'
+                        type: 'prepareItemsFromContentScript'
                     }, returnMsgCallback);
                 });
             });
@@ -236,9 +236,9 @@ chrome.runtime.onConnect.addListener(function(port) {
             window.isAutoTradeStarted = true;
             setTradeConfigFromPopup(port);
             break;
-        case 'tradeConfigFromContentScript':
+        case 'prepareItemsFromContentScript':
             window.isAutoTradeStarted = true;
-            autoTrade.tradeConfigFromContentScript(port);
+            autoTrade.prepareItemsFromContentScript(port);
             break;
         case 'checkAutoTradeState':
             checkAutoTradeState(port);
