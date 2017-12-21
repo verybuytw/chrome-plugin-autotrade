@@ -8,19 +8,19 @@ $(function() {
         window.detection = detectionHelper();
 
         switch(msg.type) {
-            case 'autoTrade':
+            case 'addItemToCart':
                 var currentSeq = msg.taobaoItem.seq;
                 var taobaoItem = msg.taobaoItem.content;
                 window.additionalInfo = additionalInfoBytaobaoType(msg.taobaoType);
 
-                runAutoTrade(msg.taobaoType, taobaoItem.id, taobaoItem.colorSku, taobaoItem.sizeSku, taobaoItem.colorCartFullName, taobaoItem.sizeCartFullName, taobaoItem.amount);
+                addItemToCart(msg.taobaoType, taobaoItem.id, taobaoItem.colorSku, taobaoItem.sizeSku, taobaoItem.colorCartFullName, taobaoItem.sizeCartFullName, taobaoItem.amount);
                 // sendResponse 回傳訊息僅在同步內有效
                 sendResponse({currentSeq: currentSeq});
 
-                autoTradeEnsureDone(function() {
+                ensureAddItemToCartDone(function() {
                     console.log('msg', msg);
                     console.log('#' + msg.taobaoItem.seq + ' done.', '(Received a msg from bp...)');
-                    chrome.runtime.sendMessage({type: 'autoTrade', taobaoItemId: taobaoItem.id, additionalInfo: additionalInfo.getComparison()});
+                    chrome.runtime.sendMessage({type: 'addItemToCart', taobaoItemId: taobaoItem.id, additionalInfo: additionalInfo.getComparison()});
                 });
                 break;
             case 'prepareItemsFromContentScript':
@@ -94,7 +94,7 @@ var runKeyGenerator = function() {
     return JSON.stringify(backfilledKey);
 };
 
-var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
+var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
 
     if (!taobaoItemId || !amount) {
         alert('taobaoItemId || amount 項目不得為空值！');
@@ -167,7 +167,7 @@ var runAutoTrade = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, co
                 setTimeout(function() {
                     document.querySelectorAll('#J_juValid .tb-btn-add .J_LinkAdd')[0].click();
 
-                    ensureAddToCartRedirected(function() {
+                    ensureAddItemToCartRedirected(function() {
                         window.isTradeDone = true;
                     }, Date.now());
                 }, amount_delay);
@@ -487,9 +487,9 @@ var detectionHelper = function() {
     }
 };
 
-var autoTradeEnsureDone = function(callback) {
+var ensureAddItemToCartDone = function(callback) {
     if (!window.isTradeDone) {
-        setTimeout(function() { autoTradeEnsureDone(callback); }, 500);
+        setTimeout(function() { ensureAddItemToCartDone(callback); }, 500);
     } else {
         if (callback) {
             callback();
@@ -497,13 +497,13 @@ var autoTradeEnsureDone = function(callback) {
     }
 };
 
-var ensureAddToCartRedirected = function(callback, startDateTime) {
+var ensureAddItemToCartRedirected = function(callback, startDateTime) {
     if (detection.timeout(Date.now(), startDateTime, 5000, 'Error: 淘寶購物車Alert通知逾時')) {
         window.isTradeDone = true;
         return;
     }
     if (typeof document.querySelectorAll('#J_ResultSummary .result-hint .icon-success')[0] == 'undefined') {
-        setTimeout(function() { ensureAddToCartRedirected(callback, startDateTime); }, 500);
+        setTimeout(function() { ensureAddItemToCartRedirected(callback, startDateTime); }, 500);
     } else {
         if (callback) {
             callback();

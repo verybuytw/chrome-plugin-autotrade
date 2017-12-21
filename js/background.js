@@ -40,7 +40,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
             // console.log(res, 'Got a callback msg from cs...');
         }
         chrome.tabs.sendMessage(tabId, {
-            type: 'autoTrade',
+            type: 'addItemToCart',
             taobaoType: taobaoType,
             taobaoItem: autoTrade.getTaobaoItem()
         }, returnMsgCallback);
@@ -54,7 +54,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 
     switch(msg.type) {
-        case 'autoTrade':
+        case 'addItemToCart':
             var seq = autoTrade.getCurrentSeq();
 
             autoTrade.setAdditionalInfoBySeq(seq, msg.additionalInfo);
