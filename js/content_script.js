@@ -49,8 +49,13 @@ $(function() {
             case 'keyGenerator':
                 ;
                 // sendResponse 回傳訊息僅在同步內有效
-                sendResponse({backfilledKey: runKeyGenerator()});
-                break
+                sendResponse({backfilledInfo: runKeyGenerator()});
+                break;
+            case 'fillTidsIntoTable':
+                var bill_items = msg.data.backfilledInfo;
+                var filled_result = fillTidsIntoTable(bill_items);
+                sendResponse(filled_result);
+                break;
             default:
                 console.log("It doesn't match type:" + msg.type);
         }
@@ -58,23 +63,25 @@ $(function() {
 });
 
 var runKeyGenerator = function() {
-    var backfilledKey = {};
+    var backfilledInfo = [];
     var boughtWrappers = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV');
 
-    for (var i = 0; i < boughtWrappers.length; i++) {
+    for (let i = 0; i < boughtWrappers.length; i++) {
         // 訂單號
         var taobaoOrderId = boughtWrappers[i].getAttribute('data-id');
 
         if (document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] .bought-wrapper-mod__checkbox___11anQ > input')[0].disabled == true) {
             // 不是能勾選的狀態不用理
-            continue;
+            //continue;
         }
         var tbody = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] tbody')
 
         // tbody 1~n , 0 不含 taobaoitemId 資訊
-        for (var n = 1; n < tbody.length; n++) {
+        for (let n = 1; n < tbody.length; n++) {
+            var wrapperDiv = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"]')[0];
+
             // a tag 藏有 taobaoitemId
-            var atag = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] tbody')[n].querySelectorAll('tr td')[0].querySelectorAll('a')[0];
+            var atag = wrapperDiv.querySelectorAll('tbody')[n].querySelectorAll('tr td')[0].querySelectorAll('a')[0];
 
             var taobaoItemId = null;
             var itemLink = atag.getAttribute('href');
@@ -88,10 +95,22 @@ var runKeyGenerator = function() {
             if (taobaoItemId === null) {
                 alert('解析商品ID發生錯誤\nError: taobaoItemId === null');
             }
-            backfilledKey[taobaoItemId] = taobaoOrderId;
+
+            // 顏色尺寸
+            var skuStrings = [];
+            var skuSpans = wrapperDiv.querySelectorAll('.production-mod__sku-item___1-Pxk');
+            for (let i = 0; i < skuSpans.length; i++) {
+                skuStrings.push(skuSpans[i].textContent);
+            }
+
+            backfilledInfo.push({
+                'taobaoItemId': taobaoItemId,
+                'skuStrings': skuStrings,
+                'taobaoOrderId': taobaoOrderId
+            });
         }
     }
-    return JSON.stringify(backfilledKey);
+    return backfilledInfo;
 };
 
 var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
@@ -522,4 +541,31 @@ var taobaoCartEnsureLoaded = function(callback, startDateTime) {
             callback();
         }
     }
+};
+
+var fillTidsIntoTable = function(bill_items) {
+    let success_count = 0;
+    for (let i in bill_items) {
+        // NOTE: 資料格式為 {taobaoItemId:"556786590860", skuStrings:["尺码：S", "颜色分类：墨绿色"], taobaoOrderId: "123"}
+        let bill_item = bill_items[i];
+        let taobaoItemId = bill_item.taobaoItemId;
+        let table = document.getElementById('taobaoItemsContentScript');
+        // 找出在所有在 table 中，該 taobaoItemId 對應的資料列
+        let selector = '[data-item-id="' + taobaoItemId + '"]';
+        let rows = table.querySelectorAll(selector);
+        rows.forEach(function(row) {
+            // 比對該列內是否含有每組 sku 的字串
+            for (let j in bill_item.skuStrings) {
+                let matchString = bill_item.skuStrings[j].replace('：', ':');
+                if (!row.textContent.match(matchString)) {
+                    return;
+                }
+            }
+            // 填入訂單號
+            let input_tid = row.querySelectorAll('.taobaoOrderId')[0];
+            input_tid.value = bill_item.taobaoOrderId;
+            success_count += 1;
+        });
+    }
+    return {success_count: success_count};
 };

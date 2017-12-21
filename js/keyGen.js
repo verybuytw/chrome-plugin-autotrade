@@ -3,5 +3,5 @@ var bp = chrome.extension.getBackgroundPage();
 
 document.addEventListener('DOMContentLoaded', function() {
 
-	$('#backfilledKey').text(bp.backfilledKey);
+	$('#backfilledInfo').text(bp.backfilledInfo);
 });

@@ -1,7 +1,7 @@
 window.currentURL = '';
 window.isAutoTradeStarted = false;
 window.cartUrl = 'https://world.taobao.com/cart/cart.htm?showResult=1';
-window.backfilledKey = '';
+window.backfilledInfo = '';
 // 存放從淘寶購物車爬到的資訊
 window.taobaoCartResult = [];
 
@@ -121,27 +121,33 @@ var autoTrade = (function() {
                     active: true
                 }, function(currentTabs) {
                     var currentTabId = currentTabs[0].id
-                    function returnMsgCallback(resFromParser) {
-
-                        chrome.storage.local.get('backfilledKey', function(resFromStorage) {
-                            if (typeof resFromStorage.backfilledKey == 'undefined') {
-                                window.backfilledKey = resFromParser.backfilledKey;
-                            } else {
-                                var _o = JSON.parse(resFromStorage.backfilledKey);
-                                var o = JSON.parse(resFromParser.backfilledKey);
-                                var m_o = Object.assign(_o, o);
-
-                                window.backfilledKey = JSON.stringify(m_o);
-                            }
-
-                            chrome.storage.local.set({'backfilledKey': window.backfilledKey});
-                            autoTrade.chromeTabsCreate('keyGen.html');
-                        });
+                    function returnMsgCallback(res) {
+                        autoTrade.sendFillTidsMessage(res);
                     }
                     chrome.tabs.sendMessage(currentTabId, {
                         type: 'keyGenerator'
                     }, returnMsgCallback);
                 });
+            });
+        },
+        sendFillTidsMessage: function(data) {
+            chrome.tabs.query({
+                url: '*://*.verybuy.tw/product/batch_auto_trade_chrome/*'
+            }, function(currentTabs) {
+                if (0 === currentTabs.length) {
+                    alert('找不到回填目標後台頁面');
+                    return;
+                }
+                for (let i in currentTabs) {
+                    let targetTabId = currentTabs[i].id;
+                    function returnMsgCallback(res) {
+                        alert('回填結束，成功回填 ' + res.success_count + ' 筆');
+                    }
+                    chrome.tabs.sendMessage(targetTabId, {
+                        type: 'fillTidsIntoTable',
+                        data: data
+                    }, returnMsgCallback);
+                }
             });
         },
         prepareItemsFromContentScript: function(port) {
@@ -164,9 +170,6 @@ var autoTrade = (function() {
                                 port.postMessage({success: false, message: 'Error: taobaoType not in prepareItemsFromContentScript！'});
                                 return;
                             }
-                            // 觸發自動拍表示前一次的回填代碼可以重置
-                            chrome.storage.local.remove('backfilledKey');
-
                             autoTrade.setRunType(msg.taobaoType);
                             triggerAutoTrade(msg.taobaoType);
                         } else {
@@ -245,19 +248,6 @@ chrome.runtime.onConnect.addListener(function(port) {
             break;
         case 'keyGenerator':
             autoTrade.keyGenerator(port);
-            break;
-        case 'resetBackfilledKey':
-
-            chrome.storage.local.remove('backfilledKey');
-
-            chrome.storage.local.get('backfilledKey', function(resFromStorage) {
-                if (typeof resFromStorage.backfilledKey == 'undefined') {
-                    window.backfilledKey = '淘寶訂單號回填代碼已重設...';
-                } else {
-                    window.backfilledKey = resFromStorage.backfilledKey;
-                }
-                autoTrade.chromeTabsCreate('keyGen.html');
-            });
             break;
         default:
             console.log("It doesn't match port name:" + port.name);
