@@ -5,6 +5,16 @@ window.backfilledInfo = '';
 // 存放從淘寶購物車爬到的資訊
 window.taobaoCartResult = [];
 
+// https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function sleepBetween(min, max) {
+    var interval = max - min;
+    var s = Math.floor((Math.random() * interval) + min);
+    var ms = Math.floor((Math.random() * 1000));
+    var wait = s * 1000 + ms;
+    console.log("sleep " + wait + " ms.");
+    return new Promise(resolve => setTimeout(resolve, wait));
+}
+
 chrome.tabs.onActivated.addListener(function(activeInfo) {
     chrome.tabs.get(activeInfo.tabId, function(tab) {
         // console.log(tab, 'tabsOnActivated');
@@ -51,7 +61,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
     // console.log(tabId, removeInfo);
 });
 
-chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function(msg, sender, sendResponse) {
 
     switch(msg.type) {
         case 'addItemToCart':
@@ -62,6 +72,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
             autoTrade.setTradeDoneBySeq(seq++);
 
             if (seq == autoTrade.getTaobaoItemListSize()) {
+                await sleepBetween(1, 2);
                 autoTrade.chromeTabsCreate(window.cartUrl);
                 chrome.tabs.remove([sender.tab.id]);
                 window.isAutoTradeStarted = false;
@@ -280,6 +291,10 @@ var triggerAutoTrade = function(taobaoType = 'taobao') {
     if ('skuId' in autoTrade.getTaobaoItem().content) {
         skuId = autoTrade.getTaobaoItem().content.skuId;
     }
-    var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId + '&skuId=' + skuId;
+    if ('taobao' === taobaoType) {
+        var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId;
+    } else {
+        var url = 'https://item.taobao.com/item.htm?id=' + taobaoItemId + '&skuId=' + skuId;
+    }
     autoTrade.chromeTabsCreate(url);
 }

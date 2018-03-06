@@ -115,6 +115,16 @@ var runKeyGenerator = function() {
 
 var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
 
+    // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+    function sleepBetween(min, max) {
+        var interval = max - min;
+        var s = Math.floor((Math.random() * interval) + min);
+        var ms = Math.floor((Math.random() * 1000));
+        var wait = s * 1000 + ms;
+        console.log("sleep " + wait + " ms.");
+        return new Promise(resolve => setTimeout(resolve, wait));
+    }
+
     if (!taobaoItemId || !amount) {
         alert('taobaoItemId || amount 項目不得為空值！');
         return;
@@ -130,7 +140,10 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                 this.sizeCartFullName = sizeCartFullName;
                 this.amount = amount;
             }
-            TaobaoAutoTrade.prototype.run = function() {
+            TaobaoAutoTrade.prototype.run = async function() {
+                await sleepBetween(0, 1);
+                window.scrollTo(0, Math.floor((Math.random() * 200) + 300));
+                await sleepBetween(1, 3);
                 colorLabel: {
                     if (this.colorSku === null) {
                         // 表示此商品本來就沒colorSku項目
@@ -143,9 +156,10 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                         return;
                     }
 
-                    colorSkuElement[0].classList.remove('tb-selected');
-
-                    colorSkuElement[0].click();
+                    if (!colorSkuElement[0].classList.contains('tb-selected')) {
+                        colorSkuElement[0].click();
+                        await sleepBetween(1, 3);
+                    }
 
                     // 爬網頁得到的資訊，暫時不用來比對了(vb後端會另外給一個購物車sku對應的翻譯名稱)
                     additionalInfo.setNameByColorSku(this.colorSku);
@@ -164,9 +178,10 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                         return;
                     }
 
-                    sizeSkuElement[0].classList.remove('tb-selected');
-
-                    sizeSkuElement[0].click();
+                    if (!sizeSkuElement[0].classList.contains('tb-selected')) {
+                        sizeSkuElement[0].click();
+                        await sleepBetween(0, 1);
+                    }
 
                     // 爬網頁得到的資訊，暫時不用來比對了(vb後端會另外給一個購物車sku對應的翻譯名稱)
                     additionalInfo.setNameBySizeSku(this.sizeSku);
@@ -182,6 +197,8 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                 additionalInfo.setAmountForKeyValue(this.amount);
 
                 var amount_delay = this.amount * 350;
+
+                await sleepBetween(1, 2);
 
                 setTimeout(function() {
                     document.querySelectorAll('#J_juValid .tb-btn-add .J_LinkAdd')[0].click();
@@ -216,7 +233,7 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                 this.sizeCartFullName = sizeCartFullName;
                 this.amount = amount;
             }
-            TmallAutoTrade.prototype.run = function() {
+            TmallAutoTrade.prototype.run = async function() {
                 // 必須要用skuid來選顏色尺寸...
                 colorLabel: {
                     // 用來檢測商品顏色項目是否存在
@@ -234,6 +251,7 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                     }
                 }
                 sizeLabel: {
+
                     // 用來檢測商品尺寸項目是否存在
                     if (this.sizeSku === null) {
                         // 表示此商品本來就沒sizeSku項目
