@@ -6,7 +6,7 @@ window.backfilledInfo = '';
 window.taobaoCartResult = [];
 
 // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
-function sleepBetween(min, max) {
+function sleepRandomBetween(min, max) {
     var interval = max - min;
     var s = Math.floor((Math.random() * interval) + min);
     var ms = Math.floor((Math.random() * 1000));
@@ -72,7 +72,7 @@ chrome.runtime.onMessage.addListener(async function(msg, sender, sendResponse) {
             autoTrade.setTradeDoneBySeq(seq++);
 
             if (seq == autoTrade.getTaobaoItemListSize()) {
-                await sleepBetween(1, 2);
+                await sleepRandomBetween(1, 2);
                 autoTrade.chromeTabsCreate(window.cartUrl);
                 chrome.tabs.remove([sender.tab.id]);
                 window.isAutoTradeStarted = false;

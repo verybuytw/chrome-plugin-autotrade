@@ -116,13 +116,31 @@ var runKeyGenerator = function() {
 var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, colorCartFullName, sizeCartFullName, amount) {
 
     // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
-    function sleepBetween(min, max) {
+    function sleepRandomBetween(min, max) {
         var interval = max - min;
         var s = Math.floor((Math.random() * interval) + min);
         var ms = Math.floor((Math.random() * 1000));
         var wait = s * 1000 + ms;
         console.log("sleep " + wait + " ms.");
         return new Promise(resolve => setTimeout(resolve, wait));
+    }
+
+    async function sleepByColorSizeButton(elementLi) {
+        var buttonIsText = (null === elementLi.querySelector('a').getAttribute('style'));
+        var optionsCount = elementLi.parentElement.querySelectorAll('li').length;
+        if (1 === optionsCount) {
+            return;
+        }
+        var min = 0;
+        var max = 1;
+        if (buttonIsText) {
+            min = Math.floor(optionsCount / 10);
+            max = Math.floor(optionsCount / 5) + 1;
+        } else {
+            min = Math.floor(optionsCount / 4);
+            max = Math.floor(optionsCount / 2) + 1;
+        }
+        await sleepRandomBetween(min, max);
     }
 
     if (!taobaoItemId || !amount) {
@@ -141,9 +159,8 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                 this.amount = amount;
             }
             TaobaoAutoTrade.prototype.run = async function() {
-                await sleepBetween(0, 1);
-                window.scrollTo(0, Math.floor((Math.random() * 200) + 300));
-                await sleepBetween(1, 3);
+                await sleepRandomBetween(0, 1);
+                window.scrollTo(0, Math.floor((Math.random() * 50) + 300));
                 colorLabel: {
                     if (this.colorSku === null) {
                         // 表示此商品本來就沒colorSku項目
@@ -156,9 +173,10 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                         return;
                     }
 
-                    if (!colorSkuElement[0].classList.contains('tb-selected')) {
-                        colorSkuElement[0].click();
-                        await sleepBetween(1, 3);
+                    var elementLi = colorSkuElement[0];
+                    await sleepByColorSizeButton(elementLi);
+                    if (!elementLi.classList.contains('tb-selected')) {
+                        elementLi.click();
                     }
 
                     // 爬網頁得到的資訊，暫時不用來比對了(vb後端會另外給一個購物車sku對應的翻譯名稱)
@@ -178,9 +196,10 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
                         return;
                     }
 
-                    if (!sizeSkuElement[0].classList.contains('tb-selected')) {
-                        sizeSkuElement[0].click();
-                        await sleepBetween(0, 1);
+                    var elementLi = sizeSkuElement[0];
+                    await sleepByColorSizeButton(elementLi);
+                    if (!elementLi.classList.contains('tb-selected')) {
+                        elementLi.click();
                     }
 
                     // 爬網頁得到的資訊，暫時不用來比對了(vb後端會另外給一個購物車sku對應的翻譯名稱)
@@ -198,7 +217,7 @@ var addItemToCart = function(type = 'taobao', taobaoItemId, colorSku, sizeSku, c
 
                 var amount_delay = this.amount * 350;
 
-                await sleepBetween(1, 2);
+                await sleepRandomBetween(0, 1);
 
                 setTimeout(function() {
                     document.querySelectorAll('#J_juValid .tb-btn-add .J_LinkAdd')[0].click();
