@@ -64,21 +64,21 @@ $(function() {
 
 var runKeyGenerator = function() {
     var backfilledInfo = [];
-    var boughtWrappers = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV');
+    var boughtWrappers = document.querySelectorAll('[class^=bought-wrapper-mod__trade-order___]');
 
     for (let i = 0; i < boughtWrappers.length; i++) {
         // 訂單號
         var taobaoOrderId = boughtWrappers[i].getAttribute('data-id');
 
-        if (document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] .bought-wrapper-mod__checkbox___11anQ > input')[0].disabled == true) {
+        if (document.querySelectorAll('[class^=bought-wrapper-mod__trade-order___][data-id="' + taobaoOrderId + '"] [class^=bought-wrapper-mod__checkbox___] > input')[0].disabled == true) {
             // 不是能勾選的狀態不用理
             //continue;
         }
-        var tbody = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"] tbody')
+        var tbody = document.querySelectorAll('[class^=bought-wrapper-mod__trade-order___][data-id="' + taobaoOrderId + '"] tbody')
 
         // tbody 1~n , 0 不含 taobaoitemId 資訊
         for (let n = 1; n < tbody.length; n++) {
-            var wrapperDiv = document.querySelectorAll('.bought-wrapper-mod__trade-order___2lrzV[data-id="' + taobaoOrderId + '"]')[0];
+            var wrapperDiv = document.querySelectorAll('[class^=bought-wrapper-mod__trade-order___][data-id="' + taobaoOrderId + '"]')[0];
 
             // a tag 藏有 taobaoitemId
             var atag = wrapperDiv.querySelectorAll('tbody')[n].querySelectorAll('tr td')[0].querySelectorAll('a')[0];
@@ -98,7 +98,7 @@ var runKeyGenerator = function() {
 
             // 顏色尺寸
             var skuStrings = [];
-            var skuSpans = wrapperDiv.querySelectorAll('.production-mod__sku-item___1-Pxk');
+            var skuSpans = wrapperDiv.querySelectorAll('[class^=production-mod__sku-item___]');
             for (let i = 0; i < skuSpans.length; i++) {
                 skuStrings.push(skuSpans[i].textContent);
             }
