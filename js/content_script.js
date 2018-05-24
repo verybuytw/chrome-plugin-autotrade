@@ -554,7 +554,7 @@ var ensureAddItemToCartDone = function(callback) {
 };
 
 var ensureAddItemToCartRedirected = function(callback, startDateTime) {
-    if (detection.timeout(Date.now(), startDateTime, 5000, 'Error: 淘寶購物車Alert通知逾時')) {
+    if (detection.timeout(Date.now(), startDateTime, 20000, 'Error: 淘寶購物車Alert通知逾時')) {
         window.isTradeDone = true;
         return;
     }
